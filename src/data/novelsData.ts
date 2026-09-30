@@ -316,6 +316,22 @@ export const INITIAL_NOVELS: Novel[] = [
           <p>"The Guild consists of fossilized old men who believe alchemy ended with transmutation of lead," Cecelia replied briskly, using delicate steel tweezers to adjust a jewel pivot. "My father was working on something far greater: self-perpetuating mechanical resonance."</p>
           <p>With a faint mechanical click, the central valve gave way. A glass cylinder filled with shimmering, luminescent silver fluid began to spin inside the automaton’s ribcage. The brass eyelids of the figure fluttered open, revealing irises of polished lapis lazuli that focused directly upon Cecelia’s face.</p>
         `
+      },
+      {
+        id: 502,
+        novelId: 5,
+        chapterNumber: 2,
+        title: "The Sovereign's Secret Gear",
+        wordCount: 1180,
+        estimatedReadMinutes: 6,
+        releaseDate: "February 8, 2026",
+        content: `
+          <p>The automaton did not speak with vocal cords. Instead, tiny brass reeds within its throat vibrates in melodic resonance, humming an ancient sonata that resonated in Cecelia's dental work.</p>
+          <p>"Master Vance... deceased?" the automaton's timbre was soft, mournful, and frighteningly sentient.</p>
+          <p>Cecelia steadied herself against the mahogany workbench. "Yes, Adam. Two winters ago. The Grand Inquisitor claimed it was chimney-fumes, but father’s journals spoke of an alchemical poison that turns bone to brittle quartz."</p>
+          <p>The machine raised its right gauntlet. Intricate micro-pistons whirred silently beneath the polished brass casing. With a delicate movement, the index finger unscrewed, revealing a miniature cylinder of black velvet.</p>
+          <p>"He left the primary schematics for you, Cecelia," the construct murmured. "The Guild is coming. They have already deployed the steam-hound battalions across the Iron Bridge."</p>
+        `
       }
     ]
   },
@@ -354,6 +370,269 @@ export const INITIAL_NOVELS: Novel[] = [
           <p>Leo blinked. While everyone else saw simple stat bars and skill cooldowns, Leo could see the raw memory addresses floating above every object in the room. Even the coffee mug on his desk showed: <code>Object: PorcelainMug | Durability: 12/12 | MemoryAddr: 0x7FFF92A</code>.</p>
           <p>And when a level 1 Goblin broke through the office window wielding a rusty blade, Leo didn't grab a sword. He simply opened the creature's hitbox parameter and changed <code>Aggro: TRUE</code> to <code>Aggro: NULL</code>.</p>
         `
+      },
+      {
+        id: 602,
+        novelId: 6,
+        chapterNumber: 2,
+        title: "Stack Overflow Dungeon",
+        wordCount: 1340,
+        estimatedReadMinutes: 6,
+        releaseDate: "March 7, 2026",
+        content: `
+          <p>The office elevator shaft was no longer leading down to the underground parking garage. The System had converted the lower six floors into a Grade-F starter dungeon titled: <em>'The Infested Catacombs of Tower 4'</em>.</p>
+          <p>Coworkers armed with improvised spear-mops and fire extinguisher clubs gathered nervously near the entrance. "We need a raid leader with high DPS," shouted Marcus, whose title read <em>[Level 2 Berserker]</em>.</p>
+          <p>Leo stepped forward, peering down the abyss. While the others saw blood-stained cobwebs and glowing green eyes, Leo's vision highlighted the spawn spawner logic in bright cyan strings: <code>SpawnInterval: 45000ms | MonsterType: Hobgoblin_Scout | DropRate: 0.05</code>.</p>
+          <p>Leo reached into the air, tapped the floating terminal prompt only he could see, and typed a quick script: <code>DropRate.multiply(100.0);</code>.</p>
+          <p><em>[ALERT: Memory corruption detected. System Patch 1.0.1 pending approval by Cosmic Administrator. Executing unauthorized value override...]</em></p>
+          <p>The first sewer bat that fluttered into range died from a single thrown stapler. Upon hitting the floor, it didn't drop a copper coin like normal—it exploded into a blinding fountain of purple Epic-tier skill scrolls and high-grade mana crystals that flooded the hallway up to Leo's knees.</p>
+        `
+      }
+    ]
+  },
+  {
+    id: 7,
+    title: "The Moonlit Duchess and the Dragon Lord",
+    author: "Lady Evelyn Rivers",
+    coverImage: undefined,
+    fallbackGradient: "from-rose-950 via-purple-950 to-slate-950",
+    genre: "Romance",
+    tags: ["Fantasy Romance", "Enemies to Lovers", "Dragon Shifter", "Royal Court", "Magic"],
+    status: "Ongoing",
+    rating: 4.92,
+    ratingCount: 2450,
+    totalViews: "68.4K",
+    viewCount: 68400,
+    publishedYear: 2026,
+    featured: true,
+    synopsis: "To save her duchy from ruin, Duchess Seraphina agrees to a political betrothal with Duke Gerald of the Black Peaks—a feared warlord rumored to harbor the untamed heart of an ancient golden dragon.",
+    chapters: [
+      {
+        id: 701,
+        novelId: 7,
+        chapterNumber: 1,
+        title: "The Rose of Highgarden",
+        wordCount: 1250,
+        estimatedReadMinutes: 6,
+        releaseDate: "February 1, 2026",
+        content: `
+          <p>The grand ballroom of the Sunken Rose Palace was an ocean of swirling silk, spun gold, and fragrant white lilies. Yet beneath the glittering crystal chandeliers, every whispered conversation revolved around a single man standing solitary on the balcony.</p>
+          <p>Duke Gerald of the Black Peaks wore midnight velvet embroidered with threads of scorched obsidian. His eyes, predatory and flecked with liquid amber, swept the room with the dispassionate scrutiny of a hawk circling a flock of doves.</p>
+          <p>"He has burned three baronies that refused his border treaties," Countess Maria hissed beside Seraphina, her painted fan fluttering nervously. "They say on the nights of the blood moon, claws tear through his skin and smoke pours from his lungs."</p>
+          <p>Duchess Seraphina lifted her chin, smoothing the skirts of her emerald gown. Her family’s lands were bankrupt; the winter frosts had destroyed the vineyards, and the King’s tax collectors were already waiting at her estate gates. "He is an ally who pays his debts in pure gold, Maria. And unlike our King, he keeps his word."</p>
+          <p>Seraphina stepped past the crowd, the silk of her train whispering over the parquet. As she approached the balcony archway, the Duke turned. A faint scent of ozone and crushed pine needles drifted between them.</p>
+          <p>"Duchess Seraphina," Gerald spoke, his baritone sending a quiet shiver down her spine. "I was told the Rose of Highgarden would run when confronted by the dragon."</p>
+          <p>"You were misinformed, Your Grace," Seraphina replied, meeting his amber gaze without flinching. "I do not run from fire. I decide who it burns."</p>
+        `
+      },
+      {
+        id: 702,
+        novelId: 7,
+        chapterNumber: 2,
+        title: "A Dance with the Dragon Duke",
+        wordCount: 1380,
+        estimatedReadMinutes: 7,
+        releaseDate: "February 9, 2026",
+        content: `
+          <p>When Gerald offered his gloved hand, the entire ballroom fell silent. The musicians in the upper gallery hesitated before launching into a slow, haunting waltz of the Northern Highlands.</p>
+          <p>Gerald’s grip was surprisingly gentle, yet the heat radiating through his leather glove felt like holding polished sunlight. As he drew her into the rhythm, every movement was effortless, possessing the coiled grace of an apex predator.</p>
+          <p>"You speak boldly for a lady whose castle walls are crumbling," Gerald murmured, leaning close enough that his warm breath brushed the pearls woven into her dark curls.</p>
+          <p>"My walls may be old, Your Grace, but my lineage guarded the Dragon Seals long before your clan claimed the mountain crags," Seraphina whispered back, maintaining her step with pristine precision.</p>
+          <p>A slow, enigmatic smile touched Gerald's carved features. For a fraction of a heartbeat, his pupils slit into golden vertical needles, and the temperature around them rose by ten degrees. "Then perhaps our marriage will not be as tedious as I anticipated."</p>
+        `
+      }
+    ]
+  },
+  {
+    id: 8,
+    title: "The Whispering Archives of Arkham Gate",
+    author: "Detective Roland Graves",
+    coverImage: undefined,
+    fallbackGradient: "from-slate-950 via-stone-900 to-emerald-950",
+    genre: "Mystery",
+    tags: ["Supernatural Mystery", "Detective Noir", "Occult", "Forbidden Tomes", "Eldritch"],
+    status: "Ongoing",
+    rating: 4.87,
+    ratingCount: 1320,
+    totalViews: "19.8K",
+    viewCount: 19800,
+    publishedYear: 2026,
+    synopsis: "In 1928 Massachusetts, private investigator Roland Graves is hired to locate a stolen 14th-century parchment from the restricted stacks of Arkham Gate University—only to uncover a ritual sacrifice tied to the rising tides.",
+    chapters: [
+      {
+        id: 801,
+        novelId: 8,
+        chapterNumber: 1,
+        title: "The Midnight Murder at Blackwood Pier",
+        wordCount: 1220,
+        estimatedReadMinutes: 6,
+        releaseDate: "January 15, 2026",
+        content: `
+          <p>Fog clung to the Boston harbor like wet gauze, muffling the rhythmic clanging of the lighthouse bell. Roland Graves flicked open his brass Zippo, the yellow flame briefly illuminating the jagged scar cutting across his left eyebrow.</p>
+          <p>On the wet timber boards of Pier 14, the body lay face up. No blood, no stab wounds, no bullet punctures. Just a gentleman in an immaculate three-piece tweed suit whose eyes had turned entirely milky white, staring blankly at the swirling constellations above.</p>
+          <p>"Name is Professor Alistair Finch," muttered Officer Higgins, tipping his wet cap. "Head of Antiquities at Arkham Gate. The watchman found him at two in the morning. He had this clutched in his fist, Graves."</p>
+          <p>Higgins held out an evidence tin containing a heavy bronze coin stamped with a spiral tentacle emblem. The metal was ice-cold, yet as Graves touched it, his fingers tingled as though brushing an exposed telegraph wire.</p>
+          <p>"Finch didn't drown," Graves said, studying the professor’s parted lips. Fine grains of black, luminescent sand were dusting the dead man's tongue. "And whatever killed him didn't come from this harbor."</p>
+        `
+      },
+      {
+        id: 802,
+        novelId: 8,
+        chapterNumber: 2,
+        title: "The Bound Grimoire of 1888",
+        wordCount: 1310,
+        estimatedReadMinutes: 6,
+        releaseDate: "January 23, 2026",
+        content: `
+          <p>The basement archive of Arkham Gate University smelled of rotting leather, powdered sulfur, and dried elderberries. Gas lanterns hissed in the gloom, throwing elongated shadows over floor-to-ceiling iron cages that held the university’s banned texts.</p>
+          <p>Graves slipped through the broken padlocks. In the center of Room 13B stood an empty velvet pedestal. The brass catalog card read: <em>Liber Tenebrarum — Acquired 1888, Expedition to the Aleutian Trenches</em>.</p>
+          <p>"You shouldn't be down here, detective," a soft, brittle voice rasped from the shadows between the shelves.</p>
+          <p>Graves had his Colt .45 unholstered before the speaker had finished the sentence. "Step out where the lantern light can see you, friend."</p>
+          <p>A woman with silver hair cropped short and round tortoise-shell spectacles emerged. Her hands were stained with black archival ink. "I am Dr. Clara Sterling, curator of the Special Collections. And if you value your sanity, you will put that pistol away. Guns do not stop what was awakened tonight."</p>
+        `
+      }
+    ]
+  },
+  {
+    id: 9,
+    title: "Blade of the Autumn Mist",
+    author: "Swordsman Wu Tian",
+    coverImage: undefined,
+    fallbackGradient: "from-amber-950 via-red-950 to-neutral-950",
+    genre: "Wuxia",
+    tags: ["Wuxia", "Swordplay", "Martial Jianghu", "Revenge", "Sect War"],
+    status: "Ongoing",
+    rating: 4.89,
+    ratingCount: 1780,
+    totalViews: "24.6K",
+    viewCount: 24600,
+    publishedYear: 2025,
+    synopsis: "Armed with only a rust-pitted blade and a bamboo jug of cheap wine, a nameless ronin wanders the misty frontier of Jianghu to dismantle the corrupt Iron Cloud Alliance that wiped out his master’s academy.",
+    chapters: [
+      {
+        id: 901,
+        novelId: 9,
+        chapterNumber: 1,
+        title: "The Rusty Scabbard",
+        wordCount: 1190,
+        estimatedReadMinutes: 5,
+        releaseDate: "December 1, 2025",
+        content: `
+          <p>Autumn rain drummed ceaselessly against the oiled paper lanterns hanging from the eaves of the roadside wine tavern. Inside, five bandits from the Iron Cloud Alliance sat around a rough pine table, slamming heavy cleavers into roasted mutton and bragging of their latest village plundering.</p>
+          <p>In the farthest corner, draped in a frayed straw cloak, sat a lone swordsman. A conical bamboo hat shadowed his eyes, and upon his lap rested an unadorned wooden scabbard bound with hemp cord.</p>
+          <p>"Hey! Beggar!" barked the scar-faced leader, pointing a greasy bone at the corner. "The Iron Cloud Alliance is requisitioning this tavern for the night. Pay ten copper coins as tribute or leave your boots behind!"</p>
+          <p>The swordsman did not look up. He calmly raised his earthen bowl, took a slow sip of sour sorghum wine, and placed it down without a sound.</p>
+          <p>"The wine is diluted with well water," the swordsman murmured. "And your sword stance exposes your left rib by three inches."</p>
+          <p>Enraged, the bandit leader lunged with a three-foot broadsword. Before the steel could descend halfway, there was a single flash of autumn light—like a maple leaf carried on an evening gust. When the bandit landed, his broadsword was sheared into three equal fragments, and his topknot tumbled silently into his bowl of broth.</p>
+        `
+      },
+      {
+        id: 902,
+        novelId: 9,
+        chapterNumber: 2,
+        title: "Wine Tavern in the Rain",
+        wordCount: 1260,
+        estimatedReadMinutes: 6,
+        releaseDate: "December 10, 2025",
+        content: `
+          <p>Silence enveloped the roadside tavern, broken only by the crackle of wet firewood in the hearth. The remaining four bandits froze, hands shaking upon their weapon hilts as they stared at their bald leader.</p>
+          <p>"Who... who are you?" stammered the leader, pressing his hand against his cropped scalp in terror. "Only one man in the Southern Provinces uses the Autumn Leaf Severance!"</p>
+          <p>The swordsman tilted his bamboo hat up. Beneath the brim, his gaze was dark and still as a winter pond. "Tell Hall Master Meng that the ghost of the Cloud Peak Pavilion has finished drinking his wine. Tell him I will reach the Golden Dragon Fortress before the first snowfall."</p>
+          <p>Without waiting for an answer, the swordsman gathered his hemp-wrapped scabbard, stepped out into the pouring rain, and disappeared into the autumn mist like an ink stroke dissolving in pure water.</p>
+        `
+      }
+    ]
+  },
+  {
+    id: 10,
+    title: "Reborn as an Infinite Dungeon Core",
+    author: "Keith Vance",
+    coverImage: undefined,
+    fallbackGradient: "from-indigo-950 via-purple-950 to-neutral-950",
+    genre: "LitRPG",
+    tags: ["Dungeon Core", "Monster Evolution", "Strategy", "LitRPG", "Kingdom Building"],
+    status: "Ongoing",
+    rating: 4.91,
+    ratingCount: 3100,
+    totalViews: "89.2K",
+    viewCount: 89200,
+    publishedYear: 2026,
+    featured: true,
+    synopsis: "After an untimely car accident, modern architect Bryan wakes up not as a hero or king, but as a glowing crystalline orb embedded in the heart of an abandoned subterranean labyrinth.",
+    chapters: [
+      {
+        id: 1001,
+        novelId: 10,
+        chapterNumber: 1,
+        title: "Awakening in the Obsidian Cavern",
+        wordCount: 1280,
+        estimatedReadMinutes: 6,
+        releaseDate: "January 2, 2026",
+        content: `
+          <p>No arms. No legs. No heartbeat. Just a 360-degree sphere of spherical perception radiating outward through twenty yards of solid granite.</p>
+          <p><em>[Dungeon Core Initialization Complete.]<br/>
+          [Core Status: Level 1 (Fledgling Crystalline Heart)]<br/>
+          [Mana Pool: 15/100 (Regen: +1 Mana/hour)]<br/>
+          [Dungeon Domain: 50 Cubic Meters]</em></p>
+          <p>Bryan’s consciousness spun. "I'm a rock. A literal glowing crystal bowling ball floating on a stone pedestal."</p>
+          <p>As a senior civil engineer in his past life, Bryan had spent decades designing subway tunnels and high-rise structural foundations. Now, feeling the subterranean pressure and the natural fault lines of the cavern around him, a wide smile would have crossed his face—if he had one.</p>
+          <p>"One mana generates one cubic meter of smooth carved tunnel," Bryan observed, testing the system interface. "Let's see what happens when an architect designs a death labyrinth."</p>
+          <p>Within ten minutes, Bryan carved a spiral staircase with false treads, an interlocking ventilation flue designed to funnel oxygen away from torches, and two concealed arrow slits overlooking a blind corner. A chime sounded in his mind: <em>[Architectural Bonus Applied: Labyrinth Danger Rating increased by 300%!]</em></p>
+        `
+      },
+      {
+        id: 1002,
+        novelId: 10,
+        chapterNumber: 2,
+        title: "The First Intruders",
+        wordCount: 1350,
+        estimatedReadMinutes: 6,
+        releaseDate: "January 11, 2026",
+        content: `
+          <p>On Bryan's third day as a Dungeon Core, the perimeter vibration sensors pinged. Three iron-clad boots entered the upper fissure.</p>
+          <p><em>[Alert: Intruders Detected! Class: Rank-F Adventurers (2 Swordsmen, 1 Novice Cleric).]</em></p>
+          <p>"Look at this masonry, Carl," muttered the lead adventurer, running a gauntlet along Bryan’s perfectly plumbed stone blocks. "This isn't natural erosion. There's a new Core down here, ripe for the taking!"</p>
+          <p>Deep in the cavern heart, Bryan chuckled through his crystal core. "Welcome to the test run, boys."</p>
+          <p>With a expenditure of 10 Mana, Bryan triggered the pressure plate on step fourteen. The floor didn't drop into spikes—Bryan was far smarter than that. Instead, the ceiling ventilation flap opened, dropping two dozen angry, agitated cave vipers directly onto their backpacks while a stone slab slid down behind them, cutting off their retreat.</p>
+        `
+      }
+    ]
+  },
+  {
+    id: 11,
+    title: "The Abyssal Sovereign: Leviathan Rebirth",
+    author: "Triton Blake",
+    coverImage: undefined,
+    fallbackGradient: "from-cyan-950 via-blue-950 to-black",
+    genre: "Action",
+    tags: ["Monster Evolution", "Deep Sea", "Leviathan", "Action", "Superpowers"],
+    status: "Ongoing",
+    rating: 4.86,
+    ratingCount: 1540,
+    totalViews: "27.5K",
+    viewCount: 27500,
+    publishedYear: 2026,
+    synopsis: "Reincarnated into the crushing pitch-black depths of the Mariana Trench as a tiny bioluminescent abyssal eel, Kai must devour apex predators and synthesize alien leviathan DNA to rise as the monarch of the seven seas.",
+    chapters: [
+      {
+        id: 1101,
+        novelId: 11,
+        chapterNumber: 1,
+        title: "Plunging into the Mariana Trench",
+        wordCount: 1210,
+        estimatedReadMinutes: 6,
+        releaseDate: "February 18, 2026",
+        content: `
+          <p>Ten thousand meters beneath the sunlight. At this depth, the hydrostatic pressure was a crushing eight tons per square inch—enough to flatten a titanium submarine like an empty beer can. Yet Kai’s tiny, translucent eel body drifted through the freezing black brine as light as a feather.</p>
+          <p><em>[Predatory Evolution System Active.]<br/>
+          [Current Form: Abyssal Spark Eel (Tier 1)]<br/>
+          [Special Ability: Bio-Electric Pulse (50 Volts)]<br/>
+          [Devour Prey to accumulate Genetic Biomass.]</em></p>
+          <p>A few yards away, a colossal Viperfish with translucent needle teeth three inches long slithered past, its dorsal photophore pulsing with hypnotic violet light.</p>
+          <p>In life, Kai had been a marine biologist who died during a deep-sea submersible malfunction. He knew every biological weakness of abyssal fauna. The Viperfish’s lateral sensory line was overly sensitive to sudden thermal changes.</p>
+          <p>Kai waited until the beast passed inches above him, then discharged all 50 volts of bio-electricity directly into its gill slit. The giant fish convulsed, paralyzed by the shock, and Kai’s jaws expanded to engulf the stunned apex predator whole.</p>
+          <p><em>[Devoured Tier 1 Viperfish! Acquired: Needle Fang Mutation & Enhanced Low-Light Vision!]</em></p>
+        `
       }
     ]
   }
@@ -364,7 +643,12 @@ export const GENRE_LIST = [
   'Sci-Fi',
   'Fantasy',
   'Xianxia',
+  'LitRPG',
   'Cyberpunk',
   'Steampunk',
-  'LitRPG'
+  'Romance',
+  'Mystery',
+  'Wuxia',
+  'Action'
 ] as const;
+

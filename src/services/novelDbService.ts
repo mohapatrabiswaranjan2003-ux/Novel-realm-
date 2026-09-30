@@ -73,6 +73,14 @@ export async function getNovelsFromFirestore(): Promise<Novel[]> {
       });
     }
 
+    // Merge any INITIAL_NOVELS not yet in Firestore
+    const existingIds = new Set(novels.map(n => n.id));
+    const missingInitial = INITIAL_NOVELS.filter(n => !existingIds.has(n.id));
+    if (missingInitial.length > 0) {
+      seedInitialNovelsToFirestore(missingInitial).catch(err => console.warn('Syncing new novels:', err));
+      novels.push(...missingInitial);
+    }
+
     return novels.length > 0 ? novels : INITIAL_NOVELS;
   } catch (error) {
     console.warn('Using local novels data due to Firestore network state:', error);

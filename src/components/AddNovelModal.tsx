@@ -40,7 +40,7 @@ export const AddNovelModal: React.FC<AddNovelModalProps> = ({
     if (!currentUser?.writerCertification) return;
     const cert = currentUser.writerCertification;
     setTitle(cert.title);
-    if (['Sci-Fi', 'Fantasy', 'Xianxia', 'Cyberpunk', 'Steampunk', 'LitRPG'].includes(cert.genre)) {
+    if (['Sci-Fi', 'Fantasy', 'Xianxia', 'Cyberpunk', 'Steampunk', 'LitRPG', 'Romance', 'Mystery', 'Wuxia', 'Action'].includes(cert.genre)) {
       setGenre(cert.genre as Novel['genre']);
     }
     setChapterTitle('Chapter 1: ' + (cert.title || 'The Beginning'));

@@ -39,6 +39,22 @@ const GENRE_METADATA: Record<
     description: 'System apocalypse notifications, soul container debugger classes, skill tree hacks, and leveling mechanics.',
     tropeSnippet: 'System Apocalypse · Error 404 · Uncapped Progression',
   },
+  'Romance': {
+    description: 'Enemies-to-lovers royal court intrigue, dragon shifter lords, magical vows, and high-stakes passion.',
+    tropeSnippet: 'Royal Romance · Dragon Shifter · Court Intrigue',
+  },
+  'Mystery': {
+    description: 'Eldritch occult murders, fog-shrouded 1920s harbors, forbidden grimoires, and relentless detective noir.',
+    tropeSnippet: 'Occult Detective · Arkham Noir · Forbidden Tomes',
+  },
+  'Wuxia': {
+    description: 'Lone wanderers with rusted blades, misty taverns in the rain, autumn leaf sword stances, and clan vengeance.',
+    tropeSnippet: 'Martial Jianghu · Lone Swordsman · Blade Mastery',
+  },
+  'Action': {
+    description: 'Deep-sea leviathan evolution, genetic mutations, apex predator clashes, and superpower awakening.',
+    tropeSnippet: 'Leviathan Evolution · Monster Rebirth · Deep Abyss',
+  },
 };
 
 export const GenresView: React.FC<GenresViewProps> = ({

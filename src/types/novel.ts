@@ -16,7 +16,7 @@ export interface Novel {
   author: string;
   coverImage?: string;
   fallbackGradient: string;
-  genre: 'Sci-Fi' | 'Fantasy' | 'Xianxia' | 'Cyberpunk' | 'Steampunk' | 'LitRPG';
+  genre: 'Sci-Fi' | 'Fantasy' | 'Xianxia' | 'Cyberpunk' | 'Steampunk' | 'LitRPG' | 'Romance' | 'Mystery' | 'Wuxia' | 'Action';
   tags: string[];
   status: 'Ongoing' | 'Completed';
   rating: number;
