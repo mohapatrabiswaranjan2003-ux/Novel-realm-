@@ -1,0 +1,60 @@
+{
+  "entities": {
+    "Novel": {
+      "title": "Novel",
+      "description": "A web novel with synopsis, genre, metadata, and chapter counts",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "author": { "type": "string" },
+        "genre": { "type": "string" },
+        "coverImage": { "type": "string" },
+        "description": { "type": "string" },
+        "rating": { "type": "number" },
+        "views": { "type": "number" },
+        "status": { "type": "string" },
+        "chaptersCount": { "type": "number" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["title", "author", "genre", "description"]
+    },
+    "Chapter": {
+      "title": "Chapter",
+      "description": "A single novel chapter with text content",
+      "type": "object",
+      "properties": {
+        "novelId": { "type": "string" },
+        "chapterNumber": { "type": "number" },
+        "title": { "type": "string" },
+        "content": { "type": "string" },
+        "releaseDate": { "type": "string" }
+      },
+      "required": ["novelId", "chapterNumber", "title", "content"]
+    },
+    "UserProgress": {
+      "title": "UserProgress",
+      "description": "User reading bookmark and progress record",
+      "type": "object",
+      "properties": {
+        "novelId": { "type": "string" },
+        "lastChapter": { "type": "number" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["novelId", "lastChapter"]
+    }
+  },
+  "firestore": {
+    "/novels/{novelId}": {
+      "schema": "Novel",
+      "description": "Public collection of novels"
+    },
+    "/novels/{novelId}/chapters/{chapterId}": {
+      "schema": "Chapter",
+      "description": "Public subcollection of chapters for each novel"
+    },
+    "/users/{userId}/progress/{novelId}": {
+      "schema": "UserProgress",
+      "description": "Private user reading progress and bookmarks"
+    }
+  }
+}

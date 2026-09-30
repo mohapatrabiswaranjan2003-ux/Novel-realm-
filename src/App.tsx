@@ -6,6 +6,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Novel, ReaderSettings, Bookmark, ReadingProgress, ReaderTheme } from './types/novel';
 import { INITIAL_NOVELS } from './data/novelsData';
+import { getNovelsFromFirestore, saveUserCloudBookmark } from './services/novelDbService';
 import {
   getSavedSettings,
   saveSettings,
@@ -73,10 +74,20 @@ export default function App() {
   const [bookmarks, setBookmarks] = useState<Bookmark[]>(() => getBookmarks());
   const [favorites, setFavorites] = useState<number[]>(() => getFavorites());
   const [customNovels, setCustomNovels] = useState<Novel[]>(() => getCustomNovels());
+  const [cloudNovels, setCloudNovels] = useState<Novel[]>(INITIAL_NOVELS);
   const [stats, setStats] = useState(() => getReadingStats());
   const [unlockedBooks, setUnlockedBooks] = useState<number[]>(() => getUnlockedBooks());
   const [dailyClaimedChapters, setDailyClaimedChapters] = useState<number[]>(() => getDailyPassData().claimedChapters);
   const [founderNovels, setFounderNovels] = useState<number[]>(() => getFounderPrivilegeNovels());
+
+  // Load latest novels and chapters from Cloud Database (Firestore)
+  useEffect(() => {
+    getNovelsFromFirestore().then((novels) => {
+      if (novels && novels.length > 0) {
+        setCloudNovels(novels);
+      }
+    }).catch((err) => console.warn('Cloud database sync:', err));
+  }, []);
 
   const handleUnlockBookPermanently = (novelId: number) => {
     unlockBookPermanently(novelId);
@@ -88,10 +99,10 @@ export default function App() {
     setDailyClaimedChapters([...getDailyPassData().claimedChapters]);
   };
 
-  // Combined Catalog (Built-in + User Custom Novels)
+  // Combined Catalog (Cloud Firestore Novels + User Custom Novels)
   const allNovels = useMemo(() => {
-    return [...customNovels, ...INITIAL_NOVELS];
-  }, [customNovels]);
+    return [...customNovels, ...cloudNovels];
+  }, [customNovels, cloudNovels]);
 
   // Active Novel object when reading
   const activeNovel = useMemo(() => {
@@ -170,6 +181,9 @@ export default function App() {
     };
 
     saveProgress(updatedProgress);
+    if (currentUser?.id) {
+      saveUserCloudBookmark(currentUser.id, novelId, chapterId);
+    }
     setProgressMap((curr) => ({
       ...curr,
       [novelId]: updatedProgress,
