@@ -1,0 +1,114 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --bg-main: #f8f9fa;
+    --bg-surface: #ffffff;
+    --bg-card: #ffffff;
+    --text-primary: #1e293b;
+    --text-secondary: #64748b;
+    --text-muted: #94a3b8;
+    --border-subtle: #e2e8f0;
+    --accent: #2563eb;
+    --accent-hover: #1d4ed8;
+    --reader-bg: #ffffff;
+    --reader-text: #1f2937;
+    --reader-accent: #2563eb;
+  }
+
+  [data-theme="dark"] {
+    --bg-main: #0b0f19;
+    --bg-surface: #111827;
+    --bg-card: #151e2e;
+    --text-primary: #f1f5f9;
+    --text-secondary: #94a3b8;
+    --text-muted: #64748b;
+    --border-subtle: #1e293b;
+    --accent: #60a5fa;
+    --accent-hover: #3b82f6;
+    --reader-bg: #0f172a;
+    --reader-text: #e2e8f0;
+    --reader-accent: #60a5fa;
+  }
+
+  [data-theme="sepia"] {
+    --bg-main: #f5eedc;
+    --bg-surface: #fcf6ea;
+    --bg-card: #fbf2df;
+    --text-primary: #423226;
+    --text-secondary: #745f4f;
+    --text-muted: #9c8574;
+    --border-subtle: #e3d5be;
+    --accent: #8b572a;
+    --accent-hover: #72421b;
+    --reader-bg: #fbf2df;
+    --reader-text: #3c2e24;
+    --reader-accent: #8b572a;
+  }
+
+  [data-theme="midnight"] {
+    --bg-main: #07090e;
+    --bg-surface: #0e131f;
+    --bg-card: #121a2b;
+    --text-primary: #e2e8f0;
+    --text-secondary: #8da2be;
+    --text-muted: #546882;
+    --border-subtle: #1b263b;
+    --accent: #38bdf8;
+    --accent-hover: #0284c7;
+    --reader-bg: #0a0e17;
+    --reader-text: #cbd5e1;
+    --reader-accent: #38bdf8;
+  }
+
+  [data-theme="sage"] {
+    --bg-main: #edf2eb;
+    --bg-surface: #f6f9f4;
+    --bg-card: #f3f7f1;
+    --text-primary: #253328;
+    --text-secondary: #526757;
+    --text-muted: #7e9483;
+    --border-subtle: #d3dfd1;
+    --accent: #386641;
+    --accent-hover: #294e30;
+    --reader-bg: #f3f7f1;
+    --reader-text: #223025;
+    --reader-accent: #386641;
+  }
+}
+
+.font-editorial-serif {
+  font-family: 'Newsreader', 'Lora', Georgia, Cambria, serif;
+}
+
+.font-book-serif {
+  font-family: 'Lora', Georgia, serif;
+}
+
+.font-display-title {
+  font-family: 'Cinzel', 'Newsreader', Georgia, serif;
+}
+
+.font-clean-sans {
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+.font-mono-reader {
+  font-family: 'JetBrains Mono', Consolas, Monaco, monospace;
+}
+
+/* Custom scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.3);
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(100, 116, 139, 0.5);
+}

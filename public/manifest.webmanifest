@@ -1,0 +1,17 @@
+{
+  "name": "NovelRealm - WebNovel Reader & Library",
+  "short_name": "NovelRealm",
+  "description": "An immersive web novel reading platform featuring multi-chapter epics, customizable typographic controls, soothing reading themes, and text-to-speech audio narration.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#2563eb",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

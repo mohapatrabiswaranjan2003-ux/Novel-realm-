@@ -1,0 +1,6 @@
+{
+  "name": "NovelRealm - WebNovel Reader & Library",
+  "description": "An immersive web novel reading platform featuring multi-chapter epics, customizable typographic controls, soothing reading themes, and text-to-speech audio narration.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
