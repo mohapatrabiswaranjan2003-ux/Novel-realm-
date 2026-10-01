@@ -269,6 +269,27 @@ export default function App() {
     saveBookmarks(updated);
   };
 
+  // Force Update & Purge App Cache
+  const handleForceUpdateApp = async () => {
+    try {
+      if ('serviceWorker' in navigator) {
+        const registrations = await navigator.serviceWorker.getRegistrations();
+        for (const reg of registrations) {
+          await reg.unregister();
+        }
+      }
+      if ('caches' in window) {
+        const keys = await caches.keys();
+        for (const key of keys) {
+          await caches.delete(key);
+        }
+      }
+    } catch {
+      // ignore
+    }
+    window.location.reload();
+  };
+
   // Toggle Bookmark for Current Chapter
   const isCurrentChapterBookmarked = useMemo(() => {
     if (!activeNovelId || !activeChapterId) return false;
@@ -565,6 +586,14 @@ export default function App() {
                 className="hover:text-emerald-500 font-medium transition-colors"
               >
                 Writer & Owner Studio
+              </button>
+              <span aria-hidden="true">·</span>
+              <button
+                onClick={handleForceUpdateApp}
+                title="Purges offline device cache and reloads the latest 81 novels and features"
+                className="inline-flex items-center gap-1 hover:text-amber-500 font-medium transition-colors"
+              >
+                <span>🔄 Sync & Update App</span>
               </button>
             </div>
           </div>
