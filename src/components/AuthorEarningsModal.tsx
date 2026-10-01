@@ -29,6 +29,7 @@ import {
 } from '../utils/authorEarningsStorage';
 
 import { UserAccount } from '../types/auth';
+import { checkIsOwner, verifyOwnerPasskey } from '../utils/ownerAuth';
 
 interface AuthorEarningsModalProps {
   isOpen: boolean;
@@ -52,7 +53,7 @@ export const AuthorEarningsModal: React.FC<AuthorEarningsModalProps> = ({
   });
 
   // Owner vs Writer Mode
-  const [isOwnerMode, setIsOwnerMode] = useState(false);
+  const [isOwnerMode, setIsOwnerMode] = useState(() => checkIsOwner(currentUser));
   const [ownerKeyInput, setOwnerKeyInput] = useState('');
   const [ownerKeyError, setOwnerKeyError] = useState(false);
   const [showKeyPrompt, setShowKeyPrompt] = useState(false);
@@ -102,7 +103,7 @@ export const AuthorEarningsModal: React.FC<AuthorEarningsModalProps> = ({
   const handleUnlockOwner = (e: React.FormEvent) => {
     e.preventDefault();
     // Verification passkey for website owner (biswaranjanmohapatra2000@gmail.com)
-    if (ownerKeyInput.trim().toLowerCase() === 'owner2000' || ownerKeyInput.trim() === '8144389665') {
+    if (verifyOwnerPasskey(ownerKeyInput)) {
       setIsOwnerMode(true);
       setShowKeyPrompt(false);
       setOwnerKeyError(false);

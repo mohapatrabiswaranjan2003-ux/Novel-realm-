@@ -46,6 +46,7 @@ import { recordWebsiteVisit } from './utils/communityStorage';
 import { recordRealReaderInteraction } from './utils/authorEarningsStorage';
 import { getCurrentUser, logoutUser } from './utils/userAuthStorage';
 import { UserAccount } from './types/auth';
+import { checkIsOwner } from './utils/ownerAuth';
 
 export default function App() {
   // Navigation State
@@ -55,6 +56,7 @@ export default function App() {
 
   // Authentication & Writer Exam State
   const [currentUser, setCurrentUser] = useState<UserAccount | null>(() => getCurrentUser());
+  const isOwnerSession = useMemo(() => checkIsOwner(currentUser), [currentUser]);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [authModalMode, setAuthModalMode] = useState<'login' | 'reader-signup' | 'writer-signup'>('login');
   const [isWriterExamOpen, setIsWriterExamOpen] = useState(false);
@@ -362,7 +364,8 @@ export default function App() {
             setAuthorStudioNovelId(undefined);
             setIsAuthorStudioOpen(true);
           }}
-          onOpenLiveTraffic={() => setIsLiveTrafficOpen(true)}
+          isOwner={isOwnerSession}
+          onOpenLiveTraffic={isOwnerSession ? () => setIsLiveTrafficOpen(true) : undefined}
           liveReadersCount={liveTraffic.totalActiveReaders}
           theme={settings.theme}
           onThemeCycle={handleThemeCycle}
@@ -521,24 +524,26 @@ export default function App() {
         />
       )}
 
-      {/* Genuine Real-Time Platform Traffic Modal */}
+      {/* Genuine Real-Time Platform Traffic Modal (Restricted to Owner) */}
       <LiveTrafficModal
         isOpen={isLiveTrafficOpen}
         onClose={() => setIsLiveTrafficOpen(false)}
         trafficData={liveTraffic}
+        currentUser={currentUser}
       />
 
       {/* AI Reading & Platform Concierge Assistant */}
       <RealmAssistantBot
         currentView={currentView}
         novels={allNovels}
+        isOwner={isOwnerSession}
         onOpenWriterStudio={() => {
           setAuthorStudioNovelId(undefined);
           setIsAuthorStudioOpen(true);
         }}
         onOpenBookmarks={() => setIsBookmarksOpen(true)}
         onOpenStats={() => setIsStatsOpen(true)}
-        onOpenLiveTraffic={() => setIsLiveTrafficOpen(true)}
+        onOpenLiveTraffic={isOwnerSession ? () => setIsLiveTrafficOpen(true) : () => {}}
         onOpenMonetization={() => setPolicyModalType('monetization')}
         onSwitchTheme={(theme) => handleUpdateSettings({ theme })}
         onSelectNovel={(novel) => handleSelectNovel(novel.id)}
@@ -595,6 +600,19 @@ export default function App() {
               >
                 <span>🔄 Sync & Update App</span>
               </button>
+              {isOwnerSession && (
+                <>
+                  <span aria-hidden="true">·</span>
+                  <button
+                    onClick={() => setIsLiveTrafficOpen(true)}
+                    className="inline-flex items-center gap-1 text-emerald-500 hover:text-emerald-400 font-semibold transition-colors"
+                    title="Live Platform Traffic Radar (Confidential Founder Only)"
+                  >
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                    <span>Founder Radar</span>
+                  </button>
+                </>
+              )}
             </div>
           </div>
         </footer>

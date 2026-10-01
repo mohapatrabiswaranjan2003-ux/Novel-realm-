@@ -1,6 +1,7 @@
 import { Novel, Chapter } from '../types/novel';
 import { EXTENDED_NOVELS } from './extendedNovelsData';
 import { PUBLIC_DOMAIN_NOVELS } from './publicDomainNovelsData';
+import { MASSIVE_LEGAL_NOVELS } from './massiveNovelsData';
 
 // Real generated book covers
 import coverStellarVoyager from '../assets/images/cover_stellar_voyager_1790701703865.jpg';
@@ -640,11 +641,32 @@ const BASE_NOVELS: Novel[] = [
   }
 ];
 
-export const INITIAL_NOVELS: Novel[] = [
+// Rigorous de-duplication cross-check ensuring NO novel is ever added twice
+// and preventing any ID or title collision across the entire platform
+function buildDeduplicatedNovelCatalog(rawNovels: Novel[]): Novel[] {
+  const seenTitles = new Set<string>();
+  const seenIds = new Set<number>();
+  const uniqueCatalog: Novel[] = [];
+
+  for (const novel of rawNovels) {
+    const normalizedTitle = novel.title.toLowerCase().trim();
+    if (seenTitles.has(normalizedTitle) || seenIds.has(novel.id)) {
+      continue; // Skip any duplicate title or ID
+    }
+    seenTitles.add(normalizedTitle);
+    seenIds.add(novel.id);
+    uniqueCatalog.push(novel);
+  }
+
+  return uniqueCatalog;
+}
+
+export const INITIAL_NOVELS: Novel[] = buildDeduplicatedNovelCatalog([
   ...BASE_NOVELS,
   ...EXTENDED_NOVELS,
-  ...PUBLIC_DOMAIN_NOVELS
-];
+  ...PUBLIC_DOMAIN_NOVELS,
+  ...MASSIVE_LEGAL_NOVELS
+]);
 
 export const GENRE_LIST = [
   'All Genres',

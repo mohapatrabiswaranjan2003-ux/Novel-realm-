@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Novel, ReadingProgress, ReadingShelf } from '../types/novel';
 import { NovelCard } from './NovelCard';
 import { GENRE_LIST } from '../data/novelsData';
@@ -16,6 +16,7 @@ import {
   SlidersHorizontal,
 } from 'lucide-react';
 import { getAllShelves, setNovelShelf, getPowerVoteData } from '../utils/readingStorage';
+import { NovelRealmHeroBanner } from './NovelRealmHeroBanner';
 
 interface LibraryViewProps {
   novels: Novel[];
@@ -43,7 +44,13 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
   const [minChapters, setMinChapters] = useState<number>(0);
   const [sortBy, setSortBy] = useState<'rating' | 'views' | 'chapters' | 'newest' | 'votes'>('votes');
   const [shelvesState, setShelvesState] = useState<Record<number, ReadingShelf>>(() => getAllShelves());
+  const [visibleCount, setVisibleCount] = useState<number>(36);
   const powerVoteData = getPowerVoteData();
+
+  // Reset pagination when any filter or query changes for snappy UX
+  useEffect(() => {
+    setVisibleCount(36);
+  }, [searchQuery, selectedGenre, activeShelf, statusFilter, minChapters, sortBy]);
 
   // Featured novel for marquee showcase
   const featuredNovel = useMemo(() => {
@@ -120,6 +127,11 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
       });
   }, [novels, selectedGenre, activeShelf, statusFilter, minChapters, searchQuery, sortBy, shelvesState, readingProgress, powerVoteData]);
 
+  // Paginated/windowed novels slice to keep DOM node count low on mobile
+  const displayedNovels = useMemo(() => {
+    return filteredNovels.slice(0, visibleCount);
+  }, [filteredNovels, visibleCount]);
+
   const handleShelfChange = (novelId: number, shelf: ReadingShelf) => {
     setNovelShelf(novelId, shelf);
     setShelvesState(getAllShelves());
@@ -128,6 +140,17 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-10 font-clean-sans">
       
+      {/* NovelRealm Grand Cinematic Hero Face */}
+      {!searchQuery && selectedGenre === 'All Genres' && activeShelf === 'all' && (
+        <NovelRealmHeroBanner
+          featuredNovel={featuredNovel}
+          onReadFeatured={(novelId, chapterId) => onSelectNovel(novelId, chapterId)}
+          onOpenPowerVotes={onOpenPowerVotes}
+          onOpenAddNovel={onOpenAddNovel}
+          onSelectGenre={(genre) => setSelectedGenre(genre)}
+        />
+      )}
+
       {/* Featured Marquee Section */}
       {featuredNovel && !searchQuery && selectedGenre === 'All Genres' && activeShelf === 'all' && (
         <section className="relative overflow-hidden rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-surface)] shadow-xs">
@@ -438,45 +461,65 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
             </button>
           </div>
         ) : (
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 sm:gap-6">
-            {filteredNovels.map((novel) => {
-              const currentShelf = shelvesState[novel.id] || (readingProgress[novel.id] ? 'reading' : 'all');
-              return (
-                <div key={novel.id} className="flex flex-col group">
-                  <NovelCard
-                    novel={novel}
-                    onSelect={(id) => onSelectNovel(id)}
-                    isFavorite={favorites.includes(novel.id)}
-                    onToggleFavorite={onToggleFavorite}
-                    progressPercent={readingProgress[novel.id]?.scrollPercent}
-                    lastReadChapterTitle={
-                      readingProgress[novel.id]?.chapterId
-                        ? `Ch. ${
-                            novel.chapters.find((c) => c.id === readingProgress[novel.id].chapterId)
-                              ?.chapterNumber || ''
-                          }`
-                        : undefined
-                    }
-                  />
+          <>
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 sm:gap-6">
+              {displayedNovels.map((novel) => {
+                const currentShelf = shelvesState[novel.id] || (readingProgress[novel.id] ? 'reading' : 'all');
+                return (
+                  <div key={novel.id} className="flex flex-col group">
+                    <NovelCard
+                      novel={novel}
+                      onSelect={(id) => onSelectNovel(id)}
+                      isFavorite={favorites.includes(novel.id)}
+                      onToggleFavorite={onToggleFavorite}
+                      progressPercent={readingProgress[novel.id]?.scrollPercent}
+                      lastReadChapterTitle={
+                        readingProgress[novel.id]?.chapterId
+                          ? `Ch. ${
+                              novel.chapters.find((c) => c.id === readingProgress[novel.id].chapterId)
+                                ?.chapterNumber || ''
+                            }`
+                          : undefined
+                      }
+                    />
 
-                  {/* Shelf selector dropdown on card hover / tap */}
-                  <div className="mt-1 px-1">
-                    <select
-                      value={currentShelf}
-                      onChange={(e) => handleShelfChange(novel.id, e.target.value as ReadingShelf)}
-                      className="w-full text-[10px] py-0.5 px-1.5 rounded-md border border-[var(--border-subtle)] bg-[var(--bg-surface)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] focus:outline-none"
-                    >
-                      <option value="all">📁 Shelf: None</option>
-                      <option value="reading">📖 Reading</option>
-                      <option value="want_to_read">🔖 Want to Read</option>
-                      <option value="completed">✅ Completed</option>
-                      <option value="on_hold">⏸️ On Hold</option>
-                    </select>
+                    {/* Shelf selector dropdown on card hover / tap */}
+                    <div className="mt-1 px-1">
+                      <select
+                        value={currentShelf}
+                        onChange={(e) => handleShelfChange(novel.id, e.target.value as ReadingShelf)}
+                        className="w-full text-[10px] py-0.5 px-1.5 rounded-md border border-[var(--border-subtle)] bg-[var(--bg-surface)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] focus:outline-none"
+                      >
+                        <option value="all">📁 Shelf: None</option>
+                        <option value="reading">📖 Reading</option>
+                        <option value="want_to_read">🔖 Want to Read</option>
+                        <option value="completed">✅ Completed</option>
+                        <option value="on_hold">⏸️ On Hold</option>
+                      </select>
+                    </div>
                   </div>
-                </div>
-              );
-            })}
-          </div>
+                );
+              })}
+            </div>
+
+            {/* Load More button for ultra-smooth mobile performance */}
+            {visibleCount < filteredNovels.length && (
+              <div className="flex flex-col items-center justify-center pt-8 pb-4 space-y-2">
+                <button
+                  onClick={() => setVisibleCount((prev) => Math.min(prev + 36, filteredNovels.length))}
+                  className="px-6 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm shadow-md transition-all active:scale-[0.98] flex items-center gap-2"
+                >
+                  <BookOpen className="w-4 h-4" />
+                  <span>
+                    Load More Stories ({Math.min(visibleCount, filteredNovels.length)} of {filteredNovels.length.toLocaleString()})
+                  </span>
+                </button>
+                <span className="text-xs text-[var(--text-secondary)]">
+                  Optimized for fast, battery-efficient mobile browsing
+                </span>
+              </div>
+            )}
+          </>
         )}
       </section>
     </div>

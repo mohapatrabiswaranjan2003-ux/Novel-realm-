@@ -53,6 +53,7 @@ interface RealmAssistantBotProps {
   onOpenMonetization: () => void;
   onSwitchTheme: (theme: 'light' | 'dark' | 'sepia') => void;
   onSelectNovel: (novel: Novel) => void;
+  isOwner?: boolean;
 }
 
 const INITIAL_GREETING: Message = {
@@ -63,8 +64,8 @@ const INITIAL_GREETING: Message = {
   actions: [
     { label: '📖 How do free passes work?', actionType: 'open_monetization' },
     { label: '✍️ Become a Certified Writer', actionType: 'open_writer_studio' },
-    { label: '🛡️ Is my data safe from hacking?', actionType: 'open_traffic' },
-    { label: '🟢 Live Traffic Radar', actionType: 'open_traffic' },
+    { label: '🛡️ Is my data safe from hacking?', actionType: 'open_monetization' },
+    { label: '💳 Direct UPI Tipping', actionType: 'copy_upi' },
   ],
 };
 
@@ -78,6 +79,7 @@ export const RealmAssistantBot: React.FC<RealmAssistantBotProps> = ({
   onOpenMonetization,
   onSwitchTheme,
   onSelectNovel,
+  isOwner = false,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
@@ -268,9 +270,15 @@ export const RealmAssistantBot: React.FC<RealmAssistantBotProps> = ({
           "• **Network Edge WAF:** Protected by global edge firewalls with automated DDoS and bot mitigation.\n" +
           "• **UPI Privacy Shield:** Author mobile digits are securely masked (`81******65@ptsbi`) to prevent phone scraping.\n" +
           "• **Anti-XSS:** Public comments and user inputs are strictly sanitized against script injection.",
-        [
-          { label: 'Check Live Traffic Radar 🟢', actionType: 'open_traffic' },
-        ]
+        isOwner
+          ? [
+              { label: 'Check Live Traffic Radar 🟢 (Founder)', actionType: 'open_traffic' },
+              { label: 'Monetization Policy 📄', actionType: 'open_monetization' },
+            ]
+          : [
+              { label: 'Monetization Policy 📄', actionType: 'open_monetization' },
+              { label: 'Writer Studio ✍️', actionType: 'open_writer_studio' },
+            ]
       );
       return;
     }
