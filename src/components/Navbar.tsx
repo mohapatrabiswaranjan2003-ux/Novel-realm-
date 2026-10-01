@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { BookOpen, Bookmark, BarChart3, Plus, Moon, Sun, Coffee, Zap, Download, Wallet, User, LogOut, Award, Sparkles, Feather } from 'lucide-react';
+import { BookOpen, Bookmark, BarChart3, Plus, Moon, Sun, Coffee, Zap, Download, Wallet, User, LogOut, Award, Sparkles, Feather, Menu, X, Compass } from 'lucide-react';
 import { ReaderTheme } from '../types/novel';
 import { InstallModal } from './InstallModal';
 import { UserAccount } from '../types/auth';
@@ -48,6 +48,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
   const [isInstallModalOpen, setIsInstallModalOpen] = useState(false);
   const [showUserDropdown, setShowUserDropdown] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     const handler = (e: Event) => {
@@ -175,68 +176,56 @@ export const Navbar: React.FC<NavbarProps> = ({
           )}
         </nav>
 
-        {/* Zone 3: 1-2 primary actions */}
-        <div className="flex items-center gap-2">
-          {/* Real-time Genuine Live Traffic Indicator (Mobile - Owner Only) */}
-          {isOwner && onOpenLiveTraffic && (
-            <button
-              onClick={onOpenLiveTraffic}
-              title="Genuine Live Readers Online (Founder Only)"
-              className="md:hidden flex items-center gap-1 px-2 py-1 rounded-full text-[11px] font-semibold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20"
-            >
-              <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-              </span>
-              <span className="font-mono font-bold">{liveReadersCount ?? 1}</span>
-            </button>
-          )}
-          {/* Writer Studio on mobile */}
-          {onOpenAuthorStudio && (
-            <button
-              onClick={onOpenAuthorStudio}
-              title="Writer Studio & Earnings"
-              className="md:hidden p-2 rounded-lg text-emerald-600 hover:bg-emerald-500/10 transition-colors"
-              aria-label="Writer Studio"
-            >
-              <Wallet className="w-4 h-4" />
-            </button>
-          )}
+        {/* Zone 3: Actions & Controls */}
+        <div className="flex items-center gap-1.5 sm:gap-2">
+          {/* Desktop Shortcuts */}
+          <div className="hidden md:flex items-center gap-2">
+            {onOpenAuthorStudio && (
+              <button
+                onClick={onOpenAuthorStudio}
+                title="Writer Studio & Earnings"
+                className="flex items-center gap-1 text-xs px-2.5 py-1.5 rounded-lg text-emerald-600 hover:bg-emerald-500/10 font-semibold transition-colors"
+              >
+                <Wallet className="w-4 h-4" />
+                <span>Studio</span>
+              </button>
+            )}
 
-          {/* Power Stones quick button on mobile */}
-          {onOpenPowerVotes && (
-            <button
-              onClick={onOpenPowerVotes}
-              title="Daily Power Stones"
-              className="md:hidden p-2 rounded-lg text-amber-500 hover:bg-amber-500/10 transition-colors"
-              aria-label="Power Stones"
-            >
-              <Zap className="w-4 h-4 fill-current" />
-            </button>
-          )}
+            {onOpenPowerVotes && (
+              <button
+                onClick={onOpenPowerVotes}
+                title="Daily Power Stones"
+                className="flex items-center gap-1 text-xs px-2.5 py-1.5 rounded-lg text-amber-500 hover:bg-amber-500/10 font-semibold transition-colors"
+              >
+                <Zap className="w-4 h-4 fill-current" />
+                <span>Power Stones</span>
+              </button>
+            )}
 
-          {/* PWA Install Button */}
+            <button
+              onClick={onOpenStats}
+              title="Monthly Visitors & Stats"
+              className="p-2 rounded-lg text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
+            >
+              <BarChart3 className="w-4 h-4" />
+            </button>
+          </div>
+
+          {/* PWA Install Button (Available on both desktop & mobile) */}
           <button
             onClick={handleInstallPwa}
             title="Install NovelRealm App"
-            className="p-2 rounded-lg text-[var(--text-secondary)] hover:text-blue-600 hover:bg-blue-500/10 transition-colors"
+            className="p-1.5 sm:p-2 rounded-lg text-[var(--text-secondary)] hover:text-blue-600 hover:bg-blue-500/10 transition-colors"
             aria-label="Install App"
           >
             <Download className="w-4 h-4" />
           </button>
-          {/* Mobile Analytics button */}
-          <button
-            onClick={onOpenStats}
-            title="Monthly Visitors & Stats"
-            className="md:hidden p-2 rounded-lg text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
-            aria-label="Monthly Visitors & Stats"
-          >
-            <BarChart3 className="w-4 h-4" />
-          </button>
+
+          {/* Theme Toggle (Available on both desktop & mobile) */}
           <button
             onClick={onThemeCycle}
             title={`Switch theme (Current: ${theme})`}
-            className="p-2 rounded-lg text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
+            className="p-1.5 sm:p-2 rounded-lg text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
             aria-label="Toggle theme"
           >
             {theme === 'light' ? (
@@ -252,31 +241,28 @@ export const Navbar: React.FC<NavbarProps> = ({
           {!currentUser ? (
             <button
               onClick={() => onOpenAuth && onOpenAuth('login')}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-[var(--border-subtle)] text-xs font-semibold text-[var(--text-primary)] hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
+              className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg border border-[var(--border-subtle)] text-xs font-semibold text-[var(--text-primary)] hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
             >
               <User className="w-3.5 h-3.5 text-blue-500" />
-              <span>Sign In</span>
+              <span className="hidden sm:inline">Sign In</span>
             </button>
           ) : (
             <div className="relative">
               <button
                 onClick={() => setShowUserDropdown(!showUserDropdown)}
-                className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-[var(--border-subtle)] bg-black/[0.02] dark:bg-white/[0.02] text-xs font-semibold hover:border-blue-500 transition-colors"
+                className="flex items-center gap-1.5 px-2 py-1 sm:px-2.5 sm:py-1.5 rounded-lg border border-[var(--border-subtle)] bg-black/[0.02] dark:bg-white/[0.02] text-xs font-semibold hover:border-blue-500 transition-colors"
               >
                 {currentUser.role === 'writer' ? (
                   <>
                     <span className="text-amber-500">✍️</span>
-                    <span className="max-w-[70px] sm:max-w-[110px] truncate font-bold text-[var(--text-primary)]">
+                    <span className="max-w-[60px] sm:max-w-[110px] truncate font-bold text-[var(--text-primary)]">
                       {currentUser.penName || currentUser.displayName}
-                    </span>
-                    <span className="text-[9px] px-1.5 py-0.2 rounded font-bold uppercase bg-amber-500/20 text-amber-600 dark:text-amber-400">
-                      {currentUser.isCertifiedWriter ? 'Novice' : 'Exam'}
                     </span>
                   </>
                 ) : (
                   <>
                     <User className="w-3.5 h-3.5 text-blue-500" />
-                    <span className="max-w-[70px] sm:max-w-[110px] truncate text-[var(--text-primary)]">
+                    <span className="max-w-[60px] sm:max-w-[110px] truncate text-[var(--text-primary)]">
                       {currentUser.displayName}
                     </span>
                   </>
@@ -368,16 +354,139 @@ export const Navbar: React.FC<NavbarProps> = ({
             </div>
           )}
 
+          {/* Write Story Button - hidden on tiny mobile, accessible via mobile menu */}
           <button
             onClick={handleWriteStoryClick}
-            className="flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold rounded-lg bg-blue-600 hover:bg-blue-700 text-white shadow-sm transition-all whitespace-nowrap focus:ring-2 focus:ring-blue-500/50"
+            className="hidden sm:flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold rounded-lg bg-blue-600 hover:bg-blue-700 text-white shadow-sm transition-all whitespace-nowrap focus:ring-2 focus:ring-blue-500/50"
           >
             <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
             <span>Write Story</span>
           </button>
+
+          {/* Mobile Hamburger Menu Toggle Button */}
+          <button
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            className="md:hidden p-1.5 rounded-lg text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
+            aria-label="Toggle Navigation Menu"
+          >
+            {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+          </button>
         </div>
 
       </div>
+
+      {/* Mobile Drawer Menu */}
+      {isMobileMenuOpen && (
+        <div className="md:hidden border-t border-[var(--border-subtle)] bg-[var(--bg-surface)] px-4 py-3 space-y-2.5 shadow-xl animate-fade-in">
+          <div className="grid grid-cols-2 gap-2 pb-2 border-b border-[var(--border-subtle)]">
+            <button
+              onClick={() => {
+                onNavigate('library');
+                setIsMobileMenuOpen(false);
+              }}
+              className="flex items-center gap-2 p-2 rounded-lg text-xs font-semibold text-[var(--text-primary)] hover:bg-black/5 dark:hover:bg-white/5 text-left"
+            >
+              <BookOpen className="w-4 h-4 text-blue-600" />
+              <span>Library</span>
+            </button>
+            <button
+              onClick={() => {
+                onNavigate('genres');
+                setIsMobileMenuOpen(false);
+              }}
+              className="flex items-center gap-2 p-2 rounded-lg text-xs font-semibold text-[var(--text-primary)] hover:bg-black/5 dark:hover:bg-white/5 text-left"
+            >
+              <Compass className="w-4 h-4 text-blue-600" />
+              <span>Genres</span>
+            </button>
+            <button
+              onClick={() => {
+                onOpenBookmarks();
+                setIsMobileMenuOpen(false);
+              }}
+              className="flex items-center gap-2 p-2 rounded-lg text-xs font-semibold text-[var(--text-primary)] hover:bg-black/5 dark:hover:bg-white/5 text-left"
+            >
+              <Bookmark className="w-4 h-4 text-purple-600" />
+              <span>Bookmarks</span>
+            </button>
+            <button
+              onClick={() => {
+                if (onOpenPowerVotes) onOpenPowerVotes();
+                setIsMobileMenuOpen(false);
+              }}
+              className="flex items-center gap-2 p-2 rounded-lg text-xs font-semibold text-amber-500 hover:bg-amber-500/10 text-left"
+            >
+              <Zap className="w-4 h-4 fill-current" />
+              <span>Power Stones</span>
+            </button>
+          </div>
+
+          <div className="space-y-1 pt-1">
+            <button
+              onClick={() => {
+                setIsMobileMenuOpen(false);
+                handleWriteStoryClick();
+              }}
+              className="w-full flex items-center justify-between p-2 rounded-lg text-xs font-semibold text-blue-600 dark:text-blue-400 hover:bg-blue-500/10"
+            >
+              <span className="flex items-center gap-2">
+                <Plus className="w-4 h-4" />
+                <span>Write New Story</span>
+              </span>
+              <span className="text-[10px] px-1.5 py-0.5 rounded bg-blue-500/20">Publish</span>
+            </button>
+
+            {onOpenAuthorStudio && (
+              <button
+                onClick={() => {
+                  onOpenAuthorStudio();
+                  setIsMobileMenuOpen(false);
+                }}
+                className="w-full flex items-center justify-between p-2 rounded-lg text-xs font-semibold text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/10"
+              >
+                <span className="flex items-center gap-2">
+                  <Wallet className="w-4 h-4" />
+                  <span>Writer Studio & Royalties</span>
+                </span>
+                <span className="text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/20">Studio</span>
+              </button>
+            )}
+
+            <button
+              onClick={() => {
+                onOpenStats();
+                setIsMobileMenuOpen(false);
+              }}
+              className="w-full flex items-center justify-between p-2 rounded-lg text-xs font-semibold text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-black/5 dark:hover:bg-white/5"
+            >
+              <span className="flex items-center gap-2">
+                <BarChart3 className="w-4 h-4" />
+                <span>Monthly Visitors & Analytics</span>
+              </span>
+              <span className="text-[10px] font-mono text-[var(--text-muted)]">Live</span>
+            </button>
+
+            {isOwner && onOpenLiveTraffic && (
+              <button
+                onClick={() => {
+                  onOpenLiveTraffic();
+                  setIsMobileMenuOpen(false);
+                }}
+                className="w-full flex items-center justify-between p-2 rounded-lg text-xs font-semibold text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/10"
+              >
+                <span className="flex items-center gap-2">
+                  <span className="relative flex h-2 w-2">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                  </span>
+                  <span>Live Readers Online</span>
+                </span>
+                <span className="font-mono font-bold text-xs">{liveReadersCount ?? 1} active</span>
+              </button>
+            )}
+          </div>
+        </div>
+      )}
 
       <InstallModal
         isOpen={isInstallModalOpen}
