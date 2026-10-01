@@ -1,20 +1,62 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Novels collection: Public read for all web readers
+
+    // Helper function to check if request is authenticated
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    // Helper function to check document ownership
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    // Novels Collection Firewall: Public read, authenticated write
     match /novels/{novelId} {
       allow read: if true;
-      allow write: if request.auth != null;
+      allow write: if isAuthenticated();
 
       match /chapters/{chapterId} {
         allow read: if true;
-        allow write: if request.auth != null;
+        allow write: if isAuthenticated();
       }
     }
 
-    // User bookmarks and reading progress
-    match /users/{userId}/progress/{novelId} {
-      allow read, write: if request.auth != null && request.auth.uid == userId;
+    // User Data & Reading Progress Firewall: Strict user isolation
+    match /users/{userId} {
+      allow read, write: if isOwner(userId);
+
+      match /{allSubcollections=**} {
+        allow read, write: if isOwner(userId);
+      }
+    }
+
+    // Real-time Live Platform Traffic Firewall:
+    // Strictly validates schema to prevent arbitrary script or payload injection
+    match /live_readers/{sessionId} {
+      allow read: if true;
+      allow create, update: if request.resource.data.keys().hasOnly(['sessionId', 'device', 'novelId', 'chapterId', 'novelTitle', 'lastActiveMs', 'updatedAt'])
+                            && request.resource.data.sessionId is string
+                            && request.resource.data.sessionId.size() < 100
+                            && request.resource.data.device in ['mobile', 'desktop']
+                            && (request.resource.data.novelTitle is string || request.resource.data.novelTitle == null)
+                            && request.resource.data.lastActiveMs is number;
+      allow delete: if true;
+    }
+
+    // Chapter Comments Firewall: Sanitized public reader feedback
+    match /comments/{commentId} {
+      allow read: if true;
+      allow create: if request.resource.data.content is string
+                    && request.resource.data.content.size() <= 1000
+                    && request.resource.data.novelId is number;
+      allow update, delete: if isAuthenticated();
+    }
+
+    // Default Deny All other paths to prevent unauthorized collection creation
+    match /{document=**} {
+      allow read, write: if false;
     }
   }
 }

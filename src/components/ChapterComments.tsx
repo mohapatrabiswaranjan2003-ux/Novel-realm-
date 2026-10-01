@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { MessageSquare, ThumbsUp, Send, User, Sparkles } from 'lucide-react';
 import { ChapterComment } from '../types/novel';
 import { getChapterComments, addChapterComment, toggleCommentLike } from '../utils/communityStorage';
+import { validateSafeComment, isActionAllowed } from '../utils/securityShield';
 
 interface ChapterCommentsProps {
   chapterId: number;
@@ -28,13 +29,26 @@ export const ChapterComments: React.FC<ChapterCommentsProps> = ({
     e.preventDefault();
     if (!commentText.trim()) return;
 
+    if (!isActionAllowed('comment_post', 2500)) {
+      setToastMessage('Please wait a moment before posting another comment.');
+      setTimeout(() => setToastMessage(null), 3000);
+      return;
+    }
+
+    const check = validateSafeComment(commentText);
+    if (!check.isValid) {
+      setToastMessage(check.error || 'Invalid comment content.');
+      setTimeout(() => setToastMessage(null), 3000);
+      return;
+    }
+
     setIsSubmitting(true);
-    const created = addChapterComment(chapterId, authorName, commentText);
+    const created = addChapterComment(chapterId, authorName, check.sanitized);
     setComments((prev) => [created, ...prev.filter((c) => c.id !== created.id)]);
     setCommentText('');
     setIsSubmitting(false);
 
-    setToastMessage('Comment posted! Thanks for joining the discussion.');
+    setToastMessage('Comment posted securely! Thanks for joining the discussion.');
     setTimeout(() => setToastMessage(null), 3000);
   };
 

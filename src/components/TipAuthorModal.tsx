@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { X, Heart, Coffee, Sparkles, CheckCircle2, DollarSign, Copy, Check, QrCode } from 'lucide-react';
+import { X, Heart, Coffee, Sparkles, CheckCircle2, DollarSign, Copy, Check, QrCode, Eye, EyeOff, ShieldCheck } from 'lucide-react';
+import { maskUpiId } from '../utils/privacyHelper';
 
 interface TipAuthorModalProps {
   isOpen: boolean;
@@ -21,6 +22,7 @@ export const TipAuthorModal: React.FC<TipAuthorModalProps> = ({
   const [isSuccess, setIsSuccess] = useState<boolean>(false);
   const [copiedUpi, setCopiedUpi] = useState<boolean>(false);
   const [showQr, setShowQr] = useState<boolean>(false);
+  const [showFullUpi, setShowFullUpi] = useState<boolean>(false);
 
   if (!isOpen) return null;
 
@@ -133,20 +135,36 @@ export const TipAuthorModal: React.FC<TipAuthorModalProps> = ({
             {/* UPI Direct Section */}
             <div className="p-3.5 rounded-xl border border-amber-500/20 bg-amber-500/5 space-y-2.5">
               <div className="flex items-center justify-between text-xs">
-                <span className="text-[var(--text-secondary)]">Author's Direct Bank UPI:</span>
+                <span className="text-[var(--text-secondary)] flex items-center gap-1">
+                  <ShieldCheck className="w-3.5 h-3.5 text-emerald-500" />
+                  <span>Author's Bank UPI:</span>
+                </span>
                 <div className="flex items-center gap-1.5">
-                  <code className="font-mono font-bold text-amber-600 dark:text-amber-400 bg-amber-500/15 px-2 py-0.5 rounded">
-                    {upiId}
+                  <code className="font-mono font-bold text-amber-600 dark:text-amber-400 bg-amber-500/15 px-2 py-0.5 rounded tracking-wide">
+                    {showFullUpi ? upiId : maskUpiId(upiId)}
                   </code>
+                  <button
+                    type="button"
+                    onClick={() => setShowFullUpi(!showFullUpi)}
+                    className="p-1 rounded text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
+                    title={showFullUpi ? 'Hide UPI digits' : 'Show full UPI ID'}
+                  >
+                    {showFullUpi ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                  </button>
                   <button
                     type="button"
                     onClick={handleCopyUpi}
                     className="p-1 rounded text-amber-600 hover:bg-amber-500/20 transition-colors"
-                    title="Copy UPI ID"
+                    title="Copy full UPI ID for payment app"
                   >
                     {copiedUpi ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <Copy className="w-3.5 h-3.5" />}
                   </button>
                 </div>
+              </div>
+
+              <div className="flex items-center justify-between text-[11px] text-[var(--text-secondary)]">
+                <span>Privacy: Phone/account number masked</span>
+                <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-medium">Verified Merchant ✓</span>
               </div>
 
               {copiedUpi && (

@@ -39,6 +39,9 @@ import { PowerVoteModal } from './components/PowerVoteModal';
 import { AuthorEarningsModal } from './components/AuthorEarningsModal';
 import { AuthModal } from './components/AuthModal';
 import { WriterCertificationExamModal } from './components/WriterCertificationExamModal';
+import { LiveTrafficModal } from './components/LiveTrafficModal';
+import { RealmAssistantBot } from './components/RealmAssistantBot';
+import { startLiveTrafficMonitoring, updateReaderCurrentNovel, LiveTrafficData } from './services/liveTrafficService';
 import { recordWebsiteVisit } from './utils/communityStorage';
 import { recordRealReaderInteraction } from './utils/authorEarningsStorage';
 import { getCurrentUser, logoutUser } from './utils/userAuthStorage';
@@ -65,6 +68,14 @@ export default function App() {
   const [authorStudioNovelId, setAuthorStudioNovelId] = useState<number | undefined>(undefined);
   const [selectedNovelForDetail, setSelectedNovelForDetail] = useState<Novel | null>(null);
   const [policyModalType, setPolicyModalType] = useState<'about' | 'privacy' | 'monetization' | null>(null);
+  const [isLiveTrafficOpen, setIsLiveTrafficOpen] = useState(false);
+  const [liveTraffic, setLiveTraffic] = useState<LiveTrafficData>({
+    totalActiveReaders: 1,
+    mobileCount: 1,
+    desktopCount: 0,
+    topReadingNovels: [],
+    lastUpdated: Date.now(),
+  });
 
   // Persistent User State
   const [settings, setSettings] = useState<ReaderSettings>(() => getSavedSettings());
@@ -89,6 +100,14 @@ export default function App() {
     }).catch((err) => console.warn('Cloud database sync:', err));
   }, []);
 
+  // Real-time genuine live reader tracking via Google Firebase
+  useEffect(() => {
+    const unsubscribe = startLiveTrafficMonitoring((data) => {
+      setLiveTraffic(data);
+    });
+    return () => unsubscribe();
+  }, []);
+
   const handleUnlockBookPermanently = (novelId: number) => {
     unlockBookPermanently(novelId);
     setUnlockedBooks(getUnlockedBooks());
@@ -109,6 +128,15 @@ export default function App() {
     if (!activeNovelId) return null;
     return allNovels.find((n) => n.id === activeNovelId) || null;
   }, [allNovels, activeNovelId]);
+
+  // Update current novel reading context in Firestore presence
+  useEffect(() => {
+    if (currentView === 'reader' && activeNovel) {
+      updateReaderCurrentNovel(activeNovel.id, activeChapterId, activeNovel.title);
+    } else {
+      updateReaderCurrentNovel(undefined, undefined, 'Browsing Library');
+    }
+  }, [currentView, activeNovel, activeChapterId]);
 
   // Synchronize theme to document body attribute for Tailwind / CSS variables
   useEffect(() => {
@@ -313,6 +341,8 @@ export default function App() {
             setAuthorStudioNovelId(undefined);
             setIsAuthorStudioOpen(true);
           }}
+          onOpenLiveTraffic={() => setIsLiveTrafficOpen(true)}
+          liveReadersCount={liveTraffic.totalActiveReaders}
           theme={settings.theme}
           onThemeCycle={handleThemeCycle}
           activeReadingNovelTitle={activeNovel?.title}
@@ -469,6 +499,29 @@ export default function App() {
           }}
         />
       )}
+
+      {/* Genuine Real-Time Platform Traffic Modal */}
+      <LiveTrafficModal
+        isOpen={isLiveTrafficOpen}
+        onClose={() => setIsLiveTrafficOpen(false)}
+        trafficData={liveTraffic}
+      />
+
+      {/* AI Reading & Platform Concierge Assistant */}
+      <RealmAssistantBot
+        currentView={currentView}
+        novels={allNovels}
+        onOpenWriterStudio={() => {
+          setAuthorStudioNovelId(undefined);
+          setIsAuthorStudioOpen(true);
+        }}
+        onOpenBookmarks={() => setIsBookmarksOpen(true)}
+        onOpenStats={() => setIsStatsOpen(true)}
+        onOpenLiveTraffic={() => setIsLiveTrafficOpen(true)}
+        onOpenMonetization={() => setPolicyModalType('monetization')}
+        onSwitchTheme={(theme) => handleUpdateSettings({ theme })}
+        onSelectNovel={(novel) => handleSelectNovel(novel.id)}
+      />
 
       {/* Footer (only on Library and Genres views) */}
       {currentView !== 'reader' && (

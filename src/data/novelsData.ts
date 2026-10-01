@@ -1,4 +1,5 @@
 import { Novel, Chapter } from '../types/novel';
+import { EXTENDED_NOVELS } from './extendedNovelsData';
 
 // Real generated book covers
 import coverStellarVoyager from '../assets/images/cover_stellar_voyager_1790701703865.jpg';
@@ -45,7 +46,7 @@ const STELLAR_VOYAGER_EXTENDED_CHAPTERS: Chapter[] = [
   };
 });
 
-export const INITIAL_NOVELS: Novel[] = [
+const BASE_NOVELS: Novel[] = [
   {
     id: 1,
     title: "The Stellar Voyager",
@@ -637,6 +638,8 @@ export const INITIAL_NOVELS: Novel[] = [
     ]
   }
 ];
+
+export const INITIAL_NOVELS: Novel[] = [...BASE_NOVELS, ...EXTENDED_NOVELS];
 
 export const GENRE_LIST = [
   'All Genres',

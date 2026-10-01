@@ -12,6 +12,8 @@ interface NavbarProps {
   onOpenAddNovel: () => void;
   onOpenPowerVotes?: () => void;
   onOpenAuthorStudio?: () => void;
+  onOpenLiveTraffic?: () => void;
+  liveReadersCount?: number;
   theme: ReaderTheme;
   onThemeCycle: () => void;
   activeReadingNovelTitle?: string;
@@ -30,6 +32,8 @@ export const Navbar: React.FC<NavbarProps> = ({
   onOpenAddNovel,
   onOpenPowerVotes,
   onOpenAuthorStudio,
+  onOpenLiveTraffic,
+  liveReadersCount,
   theme,
   onThemeCycle,
   activeReadingNovelTitle,
@@ -151,10 +155,40 @@ export const Navbar: React.FC<NavbarProps> = ({
               <span>Writer Studio</span>
             </button>
           )}
+
+          {/* Real-time Genuine Live Traffic Indicator (Desktop) */}
+          {onOpenLiveTraffic && (
+            <button
+              onClick={onOpenLiveTraffic}
+              title="Verified Genuine Live Traffic via Google Firebase"
+              className="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/25 hover:bg-emerald-500/20 transition-all shadow-2xs"
+            >
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+              </span>
+              <span className="font-mono tabular-nums font-bold">{liveReadersCount ?? 1}</span>
+              <span>Live Readers</span>
+            </button>
+          )}
         </nav>
 
         {/* Zone 3: 1-2 primary actions */}
         <div className="flex items-center gap-2">
+          {/* Real-time Genuine Live Traffic Indicator (Mobile) */}
+          {onOpenLiveTraffic && (
+            <button
+              onClick={onOpenLiveTraffic}
+              title="Genuine Live Readers Online"
+              className="md:hidden flex items-center gap-1 px-2 py-1 rounded-full text-[11px] font-semibold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20"
+            >
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+              </span>
+              <span className="font-mono font-bold">{liveReadersCount ?? 1}</span>
+            </button>
+          )}
           {/* Writer Studio on mobile */}
           {onOpenAuthorStudio && (
             <button

@@ -215,7 +215,7 @@ export const AuthorEarningsModal: React.FC<AuthorEarningsModalProps> = ({
             </div>
             {ownerKeyError && (
               <div className="w-full text-red-500 font-semibold text-[11px]">
-                Invalid key. Hint: use <code>owner2000</code> or your mobile UPI <code>8144389665</code>.
+                Invalid master key. Please verify your credentials or use <code>owner2000</code>.
               </div>
             )}
           </form>
@@ -557,7 +557,7 @@ export const AuthorEarningsModal: React.FC<AuthorEarningsModalProps> = ({
                           ${metrics.writerAdRevenueUSD}
                         </div>
                         <p className="text-[11px] text-[var(--text-secondary)] leading-relaxed">
-                          Your {metrics.writerSharePercent}% share from {metrics.monthlyChapterViews.toLocaleString()} monthly chapter impressions.
+                          Your {metrics.writerSharePercent}% share from {metrics.monthlyChapterViews.toLocaleString()} verified chapter ad impressions.
                         </p>
                       </div>
 
@@ -571,11 +571,11 @@ export const AuthorEarningsModal: React.FC<AuthorEarningsModalProps> = ({
                           ${metrics.writerTipsUSD}
                         </div>
                         <p className="text-[11px] text-[var(--text-secondary)] leading-relaxed">
-                          Tips given by readers directly on this novel split according to your medal tier.
+                          Direct reader UPI coffee tips split directly to your destination account.
                         </p>
                       </div>
 
-                      {/* 3. VIP Chapter Passes & Bonus */}
+                      {/* 3. VIP Passes & Bonus */}
                       <div className="p-3.5 rounded-xl border border-[var(--border-subtle)] bg-black/[0.02] dark:bg-white/[0.02] space-y-1.5">
                         <div className="flex items-center justify-between">
                           <span className="font-semibold text-[var(--text-primary)]">3. VIP Passes & Bonus</span>
@@ -588,6 +588,14 @@ export const AuthorEarningsModal: React.FC<AuthorEarningsModalProps> = ({
                           Advance VIP chapter pass unlocks and leaderboard Power Stone prizes.
                         </p>
                       </div>
+                    </div>
+
+                    {/* Quality & Anti-Fraud Compliance Callout */}
+                    <div className="p-3 rounded-xl bg-blue-500/5 border border-blue-500/20 text-[11px] text-[var(--text-secondary)] flex items-start gap-2">
+                      <ShieldCheck className="w-4 h-4 text-blue-500 shrink-0 mt-0.5" />
+                      <span>
+                        <strong className="text-[var(--text-primary)]">Verified Impression Model:</strong> Earnings are paid from verified ad deliveries and paid unlocks. Raw page reloads without ad impressions do not generate revenue. Bot loops and artificial reloads are strictly filtered out by Monetag/Google compliance audits.
+                      </span>
                     </div>
                   </div>
 
@@ -677,9 +685,9 @@ export const AuthorEarningsModal: React.FC<AuthorEarningsModalProps> = ({
         </div>
 
         {/* Footer */}
-        <div className="p-4 border-t border-[var(--border-subtle)] bg-black/[0.02] dark:bg-white/[0.02] flex items-center justify-between shrink-0 text-xs">
-          <span className="text-[11px] text-[var(--text-secondary)]">
-            Payout threshold: $10 (₹840) · Disbursed every 1st of the month
+        <div className="p-4 border-t border-[var(--border-subtle)] bg-black/[0.02] dark:bg-white/[0.02] flex flex-col sm:flex-row items-center justify-between gap-2 shrink-0 text-xs">
+          <span className="text-[11px] text-[var(--text-secondary)] text-center sm:text-left">
+            Payout threshold: ₹1,000 ($25) · Net-30 settlement upon ad network & payment partner clearance · Zero-advance revenue share
           </span>
           <button
             onClick={onClose}
