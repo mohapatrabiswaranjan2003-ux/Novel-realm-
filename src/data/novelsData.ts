@@ -1,5 +1,6 @@
 import { Novel, Chapter } from '../types/novel';
 import { EXTENDED_NOVELS } from './extendedNovelsData';
+import { PUBLIC_DOMAIN_NOVELS } from './publicDomainNovelsData';
 
 // Real generated book covers
 import coverStellarVoyager from '../assets/images/cover_stellar_voyager_1790701703865.jpg';
@@ -639,7 +640,11 @@ const BASE_NOVELS: Novel[] = [
   }
 ];
 
-export const INITIAL_NOVELS: Novel[] = [...BASE_NOVELS, ...EXTENDED_NOVELS];
+export const INITIAL_NOVELS: Novel[] = [
+  ...BASE_NOVELS,
+  ...EXTENDED_NOVELS,
+  ...PUBLIC_DOMAIN_NOVELS
+];
 
 export const GENRE_LIST = [
   'All Genres',
@@ -652,6 +657,11 @@ export const GENRE_LIST = [
   'Romance',
   'Mystery',
   'Wuxia',
-  'Action'
+  'Action',
+  'Horror',
+  'Historical',
+  'Adventure',
+  'Supernatural',
+  'Thriller'
 ] as const;
 

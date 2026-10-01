@@ -16,7 +16,23 @@ export interface Novel {
   author: string;
   coverImage?: string;
   fallbackGradient: string;
-  genre: 'Sci-Fi' | 'Fantasy' | 'Xianxia' | 'Cyberpunk' | 'Steampunk' | 'LitRPG' | 'Romance' | 'Mystery' | 'Wuxia' | 'Action';
+  genre:
+    | 'Sci-Fi'
+    | 'Fantasy'
+    | 'Xianxia'
+    | 'Cyberpunk'
+    | 'Steampunk'
+    | 'LitRPG'
+    | 'Romance'
+    | 'Mystery'
+    | 'Wuxia'
+    | 'Action'
+    | 'Horror'
+    | 'Historical'
+    | 'Adventure'
+    | 'Supernatural'
+    | 'Thriller'
+    | (string & {});
   tags: string[];
   status: 'Ongoing' | 'Completed';
   rating: number;
