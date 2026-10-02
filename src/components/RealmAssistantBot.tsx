@@ -88,6 +88,47 @@ export const RealmAssistantBot: React.FC<RealmAssistantBotProps> = ({
   const [messages, setMessages] = useState<Message[]>([INITIAL_GREETING]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
+  // Draggable position state
+  const [btnPos, setBtnPos] = useState<{ x: number; y: number } | null>(null);
+  const dragInfo = useRef<{ isDragging: boolean; startX: number; startY: number; initX: number; initY: number }>({
+    isDragging: false,
+    startX: 0,
+    startY: 0,
+    initX: 0,
+    initY: 0,
+  });
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    const t = e.touches[0];
+    const rect = e.currentTarget.getBoundingClientRect();
+    dragInfo.current = {
+      isDragging: true,
+      startX: t.clientX,
+      startY: t.clientY,
+      initX: btnPos ? btnPos.x : rect.left,
+      initY: btnPos ? btnPos.y : rect.top,
+    };
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (!dragInfo.current.isDragging) return;
+    const t = e.touches[0];
+    const dx = t.clientX - dragInfo.current.startX;
+    const dy = t.clientY - dragInfo.current.startY;
+    const nextX = Math.max(10, Math.min(window.innerWidth - 75, dragInfo.current.initX + dx));
+    const nextY = Math.max(10, Math.min(window.innerHeight - 80, dragInfo.current.initY + dy));
+    setBtnPos({ x: nextX, y: nextY });
+  };
+
+  const handleTouchEnd = () => {
+    dragInfo.current.isDragging = false;
+  };
+
+  // 1. Hide completely when reader is active!
+  if (currentView === 'reader') {
+    return null;
+  }
+
   // Auto-scroll to bottom of chat
   useEffect(() => {
     if (isOpen && !isMinimized) {
@@ -403,25 +444,35 @@ export const RealmAssistantBot: React.FC<RealmAssistantBotProps> = ({
 
   return (
     <>
-      {/* Floating Trigger Button (Bottom-Right) */}
+      {/* Floating Trigger Button (Draggable by touch / mouse) */}
       {!isOpen && (
-        <div className="fixed bottom-5 right-5 z-40">
+        <div
+          style={
+            btnPos
+              ? { left: `${btnPos.x}px`, top: `${btnPos.y}px`, bottom: 'auto', right: 'auto' }
+              : undefined
+          }
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
+          className="fixed bottom-20 right-4 md:bottom-6 md:right-6 z-40 touch-none select-none"
+        >
           <button
             onClick={() => {
               setIsOpen(true);
               setIsMinimized(false);
             }}
-            className="flex items-center gap-2.5 px-4 py-3 rounded-full bg-gradient-to-r from-amber-600 via-amber-500 to-orange-500 text-white font-medium shadow-xl hover:shadow-amber-500/25 hover:scale-105 active:scale-95 transition-all duration-200 border border-amber-400/30 group"
-            title="Ask RealmBot AI Assistant"
+            className="flex items-center gap-2.5 px-4 py-3 rounded-full bg-gradient-to-r from-amber-600 via-amber-500 to-orange-500 text-white font-medium shadow-xl hover:shadow-amber-500/25 active:scale-95 transition-all duration-200 border border-amber-400/30 group cursor-move"
+            title="Ask RealmBot AI Assistant (Drag to move)"
             aria-label="Open AI Assistant"
           >
-            <div className="relative">
+            <div className="relative pointer-events-none">
               <Bot className="w-5 h-5 transition-transform group-hover:rotate-12" />
               <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-emerald-400 border-2 border-amber-600 rounded-full animate-ping" />
               <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-emerald-400 border-2 border-amber-600 rounded-full" />
             </div>
-            <span className="text-sm font-semibold tracking-wide hidden sm:inline">Realm AI Assistant</span>
-            <Sparkles className="w-4 h-4 text-amber-200 animate-pulse" />
+            <span className="text-sm font-semibold tracking-wide hidden sm:inline pointer-events-none">Realm AI Assistant</span>
+            <Sparkles className="w-4 h-4 text-amber-200 animate-pulse pointer-events-none" />
           </button>
         </div>
       )}

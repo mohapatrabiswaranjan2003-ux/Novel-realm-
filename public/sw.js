@@ -1,9 +1,11 @@
-const CACHE_NAME = 'novelrealm-cache-v3';
+const CACHE_NAME = 'novelrealm-cache-v5';
 const STATIC_ASSETS = [
   '/',
   '/index.html',
   '/manifest.webmanifest',
   '/icon.svg',
+  '/app-icon.jpg',
+  '/auth-bg.jpg',
 ];
 
 self.addEventListener('install', (event) => {

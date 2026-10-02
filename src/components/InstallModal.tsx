@@ -53,12 +53,12 @@ export const InstallModal: React.FC<InstallModalProps> = ({
         {/* Header */}
         <div className="p-5 border-b border-[var(--border-subtle)] flex items-center justify-between shrink-0 bg-black/[0.02] dark:bg-white/[0.02]">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center shadow-md">
-              <Download className="w-5 h-5" />
+            <div className="w-11 h-11 rounded-xl overflow-hidden shadow-md border border-blue-500/30 shrink-0">
+              <img src="/app-icon.jpg" alt="NovelRealm App Icon" className="w-full h-full object-cover" />
             </div>
             <div>
               <h3 className="font-display-title text-base font-bold">Install NovelRealm</h3>
-              <p className="text-xs text-[var(--text-secondary)]">Available on Android & iOS</p>
+              <p className="text-xs text-[var(--text-secondary)]">Home screen app for Android & iOS</p>
             </div>
           </div>
           <button

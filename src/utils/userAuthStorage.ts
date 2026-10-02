@@ -287,3 +287,105 @@ export function completeWriterCertification(
 
   return updated;
 }
+
+const RESET_CODES_KEY = 'novelrealm_reset_codes_v2';
+
+export function requestPasswordReset(identifier: string): {
+  success: boolean;
+  error?: string;
+  email?: string;
+  phone?: string;
+  resetCode?: string;
+} {
+  const trimmed = identifier.trim().toLowerCase();
+  const users = getAllUsers();
+
+  // Find user by either email or mobile phone
+  const user = users.find(
+    (u) =>
+      u.email.toLowerCase() === trimmed ||
+      (u.phone && u.phone.replace(/\D/g, '') === trimmed.replace(/\D/g, ''))
+  );
+
+  if (!user) {
+    return {
+      success: false,
+      error: 'No account registered with this email or mobile phone number.',
+    };
+  }
+
+  // Generate 6-digit verification code
+  const code = Math.floor(100000 + Math.random() * 900000).toString();
+
+  try {
+    const record = {
+      userId: user.id,
+      email: user.email,
+      phone: user.phone,
+      code,
+      expiresAt: Date.now() + 15 * 60 * 1000,
+    };
+    localStorage.setItem(RESET_CODES_KEY + '_' + user.id, JSON.stringify(record));
+  } catch (e) {}
+
+  return {
+    success: true,
+    email: user.email,
+    phone: user.phone,
+    resetCode: code,
+  };
+}
+
+export function completePasswordReset(params: {
+  identifier: string;
+  code: string;
+  newPassword: string;
+}): { success: boolean; error?: string; user?: UserAccount } {
+  const trimmed = params.identifier.trim().toLowerCase();
+  const users = getAllUsers();
+
+  const user = users.find(
+    (u) =>
+      u.email.toLowerCase() === trimmed ||
+      (u.phone && u.phone.replace(/\D/g, '') === trimmed.replace(/\D/g, ''))
+  );
+
+  if (!user) {
+    return { success: false, error: 'User account not found.' };
+  }
+
+  try {
+    const raw = localStorage.getItem(RESET_CODES_KEY + '_' + user.id);
+    if (!raw) {
+      return {
+        success: false,
+        error: 'No active password reset request found. Please request a new code.',
+      };
+    }
+    const record = JSON.parse(raw);
+    if (Date.now() > record.expiresAt) {
+      return {
+        success: false,
+        error: 'Reset verification code has expired. Please request a new one.',
+      };
+    }
+    if (record.code !== params.code.trim()) {
+      return {
+        success: false,
+        error: 'Incorrect 6-digit verification code. Please check your email and try again.',
+      };
+    }
+
+    // Success! Update password
+    const updatedUser: UserAccount = {
+      ...user,
+      password: params.newPassword,
+    };
+
+    setCurrentUser(updatedUser);
+    localStorage.removeItem(RESET_CODES_KEY + '_' + user.id);
+    return { success: true, user: updatedUser };
+  } catch (e) {
+    return { success: false, error: 'An error occurred during password reset.' };
+  }
+}

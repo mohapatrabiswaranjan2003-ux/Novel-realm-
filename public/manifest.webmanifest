@@ -4,9 +4,21 @@
   "description": "An immersive web novel reading platform featuring multi-chapter epics, customizable typographic controls, soothing reading themes, and text-to-speech audio narration.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#0f172a",
-  "theme_color": "#2563eb",
+  "background_color": "#0b0f19",
+  "theme_color": "#1e3a8a",
   "icons": [
+    {
+      "src": "/app-icon.jpg",
+      "sizes": "512x512",
+      "type": "image/jpeg",
+      "purpose": "any"
+    },
+    {
+      "src": "/app-icon.jpg",
+      "sizes": "512x512",
+      "type": "image/jpeg",
+      "purpose": "maskable"
+    },
     {
       "src": "/icon.svg",
       "sizes": "192x192 512x512",

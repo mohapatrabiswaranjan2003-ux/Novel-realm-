@@ -88,8 +88,8 @@ export const Navbar: React.FC<NavbarProps> = ({
             onClick={() => onNavigate('library')}
             className="flex items-center gap-2.5 text-left group focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded-md p-1"
           >
-            <div className="w-8 h-8 rounded-lg bg-blue-600/10 dark:bg-blue-400/10 flex items-center justify-center text-blue-600 dark:text-blue-400 group-hover:scale-105 transition-transform">
-              <BookOpen className="w-4 h-4 stroke-[2.2]" />
+            <div className="w-8 h-8 rounded-lg overflow-hidden shadow-sm group-hover:scale-105 transition-transform border border-blue-500/30">
+              <img src="/app-icon.jpg" alt="NovelRealm Logo" className="w-full h-full object-cover" />
             </div>
             <span className="font-display-title text-xl font-bold tracking-tight text-[var(--text-primary)]">
               NovelRealm

@@ -27,6 +27,7 @@ import {
 } from './utils/readingStorage';
 
 import { Navbar } from './components/Navbar';
+import { MobileBottomNav } from './components/MobileBottomNav';
 import { LibraryView } from './components/LibraryView';
 import { ReaderView } from './components/ReaderView';
 import { GenresView } from './components/GenresView';
@@ -334,8 +335,40 @@ export default function App() {
     setCurrentView('reader');
   };
 
+  // MANDATORY SIGN-IN GATE: Users cannot view the homepage, novels, or reader until authenticated
+  if (!currentUser) {
+    return (
+      <div className="min-h-screen text-[var(--text-primary)] font-clean-sans flex flex-col justify-center items-center p-4 relative overflow-hidden select-none bg-slate-950">
+        {/* Cinematic Fantasy Webnovel Wallpaper (Gentle Subtle Blur for Clarity) */}
+        <div
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat scale-102 filter blur-[2px] contrast-105 brightness-90 transition-transform duration-1000"
+          style={{ backgroundImage: `url('/auth-bg.jpg')` }}
+        />
+
+        {/* Ambient Subtle Vignette Overlay for Crisp Contrast */}
+        <div className="absolute inset-0 bg-gradient-to-t from-slate-950/70 via-slate-950/25 to-slate-950/60 pointer-events-none" />
+
+        {/* Subtle Ambient Decorative Glows */}
+        <div className="absolute top-1/4 left-1/4 -translate-x-1/2 w-96 h-96 bg-blue-600/20 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute bottom-1/4 right-1/4 translate-x-1/2 w-96 h-96 bg-amber-500/15 rounded-full blur-3xl pointer-events-none" />
+
+        {/* Mandatory Authentication Modal / Gate */}
+        <AuthModal
+          isOpen={true}
+          isBarrier={true}
+          defaultMode={authModalMode}
+          onClose={() => {}}
+          onSuccess={(user) => {
+            setCurrentUser(user);
+          }}
+          onOpenWriterExam={() => setIsWriterExamOpen(true)}
+        />
+      </div>
+    );
+  }
+
   return (
-    <div className="min-h-screen bg-[var(--bg-main)] text-[var(--text-primary)] font-clean-sans transition-colors duration-200">
+    <div className={`min-h-screen bg-[var(--bg-main)] text-[var(--text-primary)] font-clean-sans transition-colors duration-200 overflow-x-hidden w-full max-w-full ${currentView !== 'reader' ? 'pb-16 md:pb-0' : ''}`}>
       
       {/* Navigation Top Bar (hidden only in reader mode to give reader full control) */}
       {currentView !== 'reader' && (
@@ -428,6 +461,23 @@ export default function App() {
           onClaimDailyPass={handleClaimDailyPass}
         />
       )}
+
+      {/* Official Bottom Navigation Bar for Mobile (Home, Genres, Bookmarks, Votes, Account) */}
+      <MobileBottomNav
+        currentView={currentView}
+        onNavigate={(view) => setCurrentView(view)}
+        onOpenBookmarks={() => setIsBookmarksOpen(true)}
+        onOpenPowerVotes={() => setIsPowerVotesOpen(true)}
+        onOpenAuthorStudio={() => {
+          setAuthorStudioNovelId(undefined);
+          setIsAuthorStudioOpen(true);
+        }}
+        currentUser={currentUser}
+        onOpenAuth={(mode) => {
+          setAuthModalMode(mode || 'login');
+          setIsAuthModalOpen(true);
+        }}
+      />
 
       {/* Modals */}
       <AddNovelModal

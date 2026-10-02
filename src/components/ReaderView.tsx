@@ -4,6 +4,9 @@ import { applyBionicReading, recordChapterRead } from '../utils/readingStorage';
 import { ChapterTocDrawer } from './ChapterTocDrawer';
 import { ReaderSettingsDrawer } from './ReaderSettingsDrawer';
 import { AudioNarrator } from './AudioNarrator';
+import { WtrReaderBottomBar } from './WtrReaderBottomBar';
+import { RobustTTSEngine, TTSState } from '../utils/ttsEngine';
+import { translateContent, SUPPORTED_LANGUAGES, getVoicesForLanguage } from '../utils/translationService';
 import { MonetizationSection } from './MonetizationSection';
 import { ChapterPaywall } from './ChapterPaywall';
 import { VipUnlockModal } from './VipUnlockModal';
@@ -79,6 +82,29 @@ export const ReaderView: React.FC<ReaderViewProps> = ({
   const [copiedNotification, setCopiedNotification] = useState(false);
   const [selectedText, setSelectedText] = useState('');
   const [selectionBookmarkToast, setSelectionBookmarkToast] = useState(false);
+
+  // WTR-Style Translation & Multi-Voice TTS Engine State
+  const [selectedLanguage, setSelectedLanguage] = useState<string>('en');
+  const [selectedVoiceId, setSelectedVoiceId] = useState<string>('en-m1');
+  const [activeParagraphIndex, setActiveParagraphIndex] = useState<number>(-1);
+  const [ttsState, setTtsState] = useState<TTSState>({
+    isPlaying: false,
+    isPaused: false,
+    currentParagraphIndex: 0,
+    totalParagraphs: 0,
+    currentLanguage: 'en',
+    selectedVoiceId: 'en-m1',
+    rate: settings.speechRate || 1.0,
+    engine: 'browser',
+    autoAdvanceChapter: true,
+    highlightParagraphs: true,
+  });
+
+  const ttsEngineRef = useRef<RobustTTSEngine | null>(null);
+  if (!ttsEngineRef.current) {
+    ttsEngineRef.current = new RobustTTSEngine();
+  }
+  const ttsEngine = ttsEngineRef.current;
 
   // Automatically register Early Reader / Founder privilege if user reads under 10k views
   useEffect(() => {
@@ -177,6 +203,52 @@ export const ReaderView: React.FC<ReaderViewProps> = ({
     onMarkChapterCompleted(currentChapter.id);
     recordChapterRead(currentChapter.wordCount);
   };
+
+  // WTR Translation & Paragraph Breakdown
+  const translatedChapterContent = useMemo(() => {
+    return translateContent(currentChapter.content, selectedLanguage);
+  }, [currentChapter.content, selectedLanguage]);
+
+  const chapterParagraphs = useMemo(() => {
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(translatedChapterContent, 'text/html');
+    const pElements = Array.from(doc.querySelectorAll('p'));
+    if (pElements.length > 0) {
+      return pElements.map((p) => (p.textContent || '').trim()).filter((t) => t.length > 0);
+    }
+    return translatedChapterContent.split(/\n+/).map((t) => t.trim()).filter((t) => t.length > 0);
+  }, [translatedChapterContent]);
+
+  useEffect(() => {
+    ttsEngine.setContent(translatedChapterContent);
+    ttsEngine.setLanguageAndVoice(selectedLanguage, selectedVoiceId);
+  }, [translatedChapterContent, selectedLanguage, selectedVoiceId]);
+
+  useEffect(() => {
+    ttsEngine.setCallbacks(
+      (idx) => {
+        setActiveParagraphIndex(idx);
+        if (idx >= 0) {
+          const el = document.getElementById(`para-${idx}`);
+          if (el) {
+            el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }
+        }
+      },
+      () => {
+        if (hasNextChapter) {
+          goToNextChapter();
+        }
+      },
+      (stateUpdate) => {
+        setTtsState((prev) => ({ ...prev, ...stateUpdate }));
+      }
+    );
+
+    return () => {
+      ttsEngine.stop();
+    };
+  }, [hasNextChapter]);
 
   // Text selection for snippet bookmarking
   const handleMouseUp = () => {
@@ -488,16 +560,36 @@ export const ReaderView: React.FC<ReaderViewProps> = ({
             />
           ) : (
             <>
-              {/* Chapter Body Prose */}
+              {/* Chapter Body Prose with Real-time Translation & TTS Highlight */}
               <div
                 ref={contentRef}
-                className={`${fontFamilyClass} ${lineHeightClass} space-y-6 reader-prose`}
+                className={`${fontFamilyClass} ${lineHeightClass} space-y-6 reader-prose pb-28 sm:pb-36`}
                 style={{
                   fontSize: `${settings.fontSize}px`,
                   textAlign: settings.alignment,
                 }}
-                dangerouslySetInnerHTML={{ __html: formattedHtml }}
-              />
+              >
+                {chapterParagraphs.map((paraText, idx) => {
+                  const isHighlighted = ttsState.isPlaying && activeParagraphIndex === idx;
+                  return (
+                    <p
+                      key={idx}
+                      id={`para-${idx}`}
+                      onClick={() => {
+                        ttsEngine.jumpToParagraph(idx);
+                        if (!ttsState.isPlaying) ttsEngine.play();
+                      }}
+                      className={`cursor-pointer transition-all duration-300 rounded-lg p-1.5 -mx-1.5 ${
+                        isHighlighted
+                          ? 'bg-blue-500/20 border-l-4 border-blue-500 shadow-sm text-[var(--reader-text)] font-medium scale-[1.01]'
+                          : 'hover:bg-black/[0.02] dark:hover:bg-white/[0.02]'
+                      }`}
+                    >
+                      {paraText}
+                    </p>
+                  );
+                })}
+              </div>
 
               {/* Interactive Emoji Reactions (WTR-Lab style) */}
               <ChapterReactionsBar
@@ -675,6 +767,29 @@ export const ReaderView: React.FC<ReaderViewProps> = ({
         onClose={() => setIsShareOpen(false)}
         title={`${novel.title} - Chapter ${currentChapter.chapterNumber}`}
         description={`Read Chapter ${currentChapter.chapterNumber} of ${novel.title} on NovelRealm!`}
+      />
+
+      {/* 9. WTR-Lab Style Floating TTS Player Pill & Bottom 5-Tab Bar */}
+      <WtrReaderBottomBar
+        novel={novel}
+        currentChapter={currentChapter}
+        totalChapters={novel.chapters.length}
+        chapterIndex={chapterIndex}
+        scrollProgressPercent={Math.round(scrollProgress)}
+        onPrevChapter={goToPrevChapter}
+        onNextChapter={goToNextChapter}
+        onOpenToc={() => setIsTocOpen(true)}
+        isInLibrary={isBookmarked}
+        onToggleLibrary={onToggleBookmarkCurrent}
+        settings={settings}
+        onUpdateSettings={onUpdateSettings}
+        ttsEngine={ttsEngine}
+        ttsState={ttsState}
+        selectedLanguage={selectedLanguage}
+        onSelectLanguage={(lang) => setSelectedLanguage(lang)}
+        selectedVoiceId={selectedVoiceId}
+        onSelectVoice={(vId) => setSelectedVoiceId(vId)}
+        onJumpParagraph={(idx) => ttsEngine.jumpToParagraph(idx)}
       />
 
     </div>

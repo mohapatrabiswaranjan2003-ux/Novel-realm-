@@ -1,4 +1,5 @@
 import { Novel, Chapter } from '../types/novel';
+import { FAMOUS_FANFIC_NOVELS } from './famousFanficNovels';
 import { EXTENDED_NOVELS } from './extendedNovelsData';
 import { PUBLIC_DOMAIN_NOVELS } from './publicDomainNovelsData';
 import { MASSIVE_LEGAL_NOVELS } from './massiveNovelsData';
@@ -662,6 +663,7 @@ function buildDeduplicatedNovelCatalog(rawNovels: Novel[]): Novel[] {
 }
 
 export const INITIAL_NOVELS: Novel[] = buildDeduplicatedNovelCatalog([
+  ...FAMOUS_FANFIC_NOVELS,
   ...BASE_NOVELS,
   ...EXTENDED_NOVELS,
   ...PUBLIC_DOMAIN_NOVELS,

@@ -502,31 +502,31 @@ export const AuthorEarningsModal: React.FC<AuthorEarningsModalProps> = ({
                       </span>
                     </div>
 
-                    {/* Total Estimated Earnings USD */}
+                    {/* Readership Milestone / Confidential Earnings */}
                     <div className="p-4 rounded-xl border border-emerald-500/30 bg-emerald-500/5 space-y-1">
                       <div className="flex items-center gap-1.5 text-xs text-emerald-600 dark:text-emerald-400 font-medium">
-                        <DollarSign className="w-4 h-4 text-emerald-500" />
-                        <span>Your Take-Home</span>
+                        <Award className="w-4 h-4 text-emerald-500" />
+                        <span>Writer Status</span>
                       </div>
-                      <div className="font-display-title text-2xl font-bold font-mono text-emerald-600 dark:text-emerald-400">
-                        ${metrics.totalEarningsUSD}
+                      <div className="font-display-title text-xl font-bold text-emerald-600 dark:text-emerald-400">
+                        {metrics.tierInfo.label}
                       </div>
                       <span className="text-[10px] text-[var(--text-secondary)] font-mono">
-                        ≈ ₹{metrics.totalEarningsINR.toLocaleString()} INR
+                        {isOwnerMode ? `$${metrics.totalEarningsUSD}` : 'Financials Confidential'}
                       </span>
                     </div>
 
-                    {/* Platform Share Kept */}
+                    {/* Platform Publisher Tier */}
                     <div className="p-4 rounded-xl border border-[var(--border-subtle)] bg-black/[0.02] dark:bg-white/[0.02] space-y-1">
                       <div className="flex items-center gap-1.5 text-xs text-[var(--text-secondary)] font-medium">
                         <ShieldCheck className="w-4 h-4 text-blue-500" />
-                        <span>Platform Share</span>
+                        <span>Publisher Tier</span>
                       </div>
-                      <div className="font-display-title text-2xl font-bold font-mono text-[var(--text-primary)]">
-                        ${metrics.ownerTotalUSD}
+                      <div className="font-display-title text-xl font-bold font-mono text-[var(--text-primary)]">
+                        {metrics.tierInfo.badge} Level {metrics.tierInfo.minViews === 0 ? '1' : metrics.tierInfo.minViews === 1000 ? '2' : metrics.tierInfo.minViews === 5000 ? '3' : '4'}
                       </div>
                       <span className="text-[10px] text-[var(--text-secondary)]">
-                        {metrics.ownerSharePercent}% website upkeep
+                        {isOwnerMode ? `${metrics.ownerSharePercent}% upkeep` : 'Encrypted & Private'}
                       </span>
                     </div>
                   </div>

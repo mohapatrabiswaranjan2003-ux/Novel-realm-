@@ -138,7 +138,7 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-10 font-clean-sans">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-10 font-clean-sans overflow-x-hidden w-full max-w-full">
       
       {/* NovelRealm Grand Cinematic Hero Face */}
       {!searchQuery && selectedGenre === 'All Genres' && activeShelf === 'all' && (
@@ -402,12 +402,12 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
           </div>
 
           {/* Secondary Filters: Status & Sort */}
-          <div className="flex items-center gap-2 text-xs">
+          <div className="flex flex-wrap items-center gap-2 text-xs w-full sm:w-auto">
             {/* Status dropdown */}
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value as any)}
-              className="px-2.5 py-1.5 rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-surface)] text-[var(--text-primary)] text-xs focus:outline-none"
+              className="flex-1 sm:flex-none px-2.5 py-1.5 rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-surface)] text-[var(--text-primary)] text-xs focus:outline-none"
             >
               <option value="all">All Status</option>
               <option value="Ongoing">Ongoing</option>
@@ -418,7 +418,7 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
             <select
               value={minChapters}
               onChange={(e) => setMinChapters(Number(e.target.value))}
-              className="px-2.5 py-1.5 rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-surface)] text-[var(--text-primary)] text-xs focus:outline-none"
+              className="flex-1 sm:flex-none px-2.5 py-1.5 rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-surface)] text-[var(--text-primary)] text-xs focus:outline-none"
             >
               <option value={0}>Any Length</option>
               <option value={10}>10+ Chapters</option>
@@ -430,7 +430,7 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value as any)}
-              className="px-2.5 py-1.5 rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-surface)] text-[var(--text-primary)] text-xs font-semibold focus:outline-none"
+              className="w-full sm:w-auto px-2.5 py-1.5 rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-surface)] text-[var(--text-primary)] text-xs font-semibold focus:outline-none"
             >
               <option value="votes">⚡ Power Stones (Leaderboard)</option>
               <option value="rating">★ Highest Rated</option>

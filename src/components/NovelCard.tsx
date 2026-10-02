@@ -44,23 +44,33 @@ export const NovelCard: React.FC<NovelCardProps> = ({
           />
         ) : null}
 
-        {/* Fallback container with editorial typography if image is not present or fails */}
+        {/* Fallback container with authentic hardcover book jacket styling */}
         <div
-          className={`cover-fallback ${novel.coverImage ? 'hidden' : 'flex'} absolute inset-0 bg-gradient-to-br ${novel.fallbackGradient} p-4 flex-col justify-between text-white`}
+          className={`cover-fallback ${novel.coverImage ? 'hidden' : 'flex'} absolute inset-0 bg-gradient-to-br ${novel.fallbackGradient} p-3 sm:p-4 flex-col justify-between text-white border-l-4 border-black/40 shadow-[inset_8px_0_12px_rgba(0,0,0,0.5)] select-none`}
         >
-          <div className="flex items-center justify-between text-xs tracking-wider uppercase opacity-80">
-            <span>{novel.genre}</span>
-            <span>{novel.status}</span>
+          {/* Subtle ornate inner frame */}
+          <div className="absolute inset-2 border border-white/15 pointer-events-none rounded-xs" />
+
+          <div className="relative z-10 flex items-center justify-between text-[10px] tracking-wider uppercase font-semibold text-amber-200/90">
+            <span className="px-1.5 py-0.5 rounded-xs bg-black/30 backdrop-blur-xs border border-white/10">{novel.genre}</span>
+            <span className="opacity-80">{novel.status}</span>
           </div>
-          <div>
-            <h3 className="font-display-title text-base font-bold leading-snug line-clamp-3">
+
+          <div className="relative z-10 my-auto py-2">
+            <h3 className="font-display-title text-sm sm:text-base font-extrabold leading-snug line-clamp-3 text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] tracking-tight">
               {novel.title}
             </h3>
-            <p className="text-xs opacity-75 mt-1 font-clean-sans">{novel.author}</p>
+            <p className="text-[11px] text-amber-100/80 mt-1.5 font-medium line-clamp-1 italic drop-shadow-xs">
+              {novel.author.split('(')[0].trim()}
+            </p>
           </div>
-          <div className="flex items-center gap-1 text-[11px] opacity-70">
-            <BookOpen className="w-3.5 h-3.5" />
-            <span>{novel.chapters.length} Chapters</span>
+
+          <div className="relative z-10 flex items-center justify-between text-[10px] text-white/80 border-t border-white/15 pt-1.5">
+            <div className="flex items-center gap-1">
+              <BookOpen className="w-3 h-3 text-amber-300" />
+              <span className="font-mono font-medium">{novel.chapters.length} Chs</span>
+            </div>
+            <span className="font-mono text-amber-300 font-bold">★ {novel.rating.toFixed(1)}</span>
           </div>
         </div>
 
