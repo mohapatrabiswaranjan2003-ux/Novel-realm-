@@ -1,4 +1,5 @@
 import { Novel, Chapter } from '../types/novel';
+import { generateUniqueChapterTitle } from '../utils/narrativeGenerator';
 
 // Helper to generate chapters with varied story progression for a novel
 function generateNovelChapters(
@@ -8,16 +9,18 @@ function generateNovelChapters(
   themeKeywords: { hero: string; setting: string; antagonist: string; artifact: string }
 ): Chapter[] {
   const chapters: Chapter[] = [];
+  const targetCount = 250; // Each novel now has 250 serialized chapters
 
-  for (let i = 1; i <= baseChapterCount; i++) {
-    const title = chapterTitles[i - 1] || `Chapter ${i}: The Unfolding Path`;
-    const wordCount = 1150 + ((i * 17) % 350);
-    const readMinutes = Math.max(4, Math.round(wordCount / 220));
+  for (let i = 1; i <= targetCount; i++) {
+    const customTitle = chapterTitles[i - 1];
+    const title = customTitle || generateUniqueChapterTitle(i, themeKeywords.hero, 'general_xianxia');
+    const wordCount = 1150 + ((i * 29) % 650);
+    const readMinutes = Math.max(5, Math.round(wordCount / 220));
     const isLockedMilestone = i > 30;
 
     let arc = 'early';
-    if (i > 40) arc = 'climax';
-    else if (i > 25) arc = 'mid';
+    if (i > 180) arc = 'climax';
+    else if (i > 90) arc = 'mid';
 
     let contentSnippet = '';
     if (arc === 'early') {
@@ -39,7 +42,7 @@ function generateNovelChapters(
         <p>Silence hung heavy over the ruins of ${themeKeywords.setting}. In the distance, the grand apex loomed against a sky sheared in half by celestial energy. This was the pinnacle of ${themeKeywords.hero}'s long crusade.</p>
         <p>Before them stood ${themeKeywords.antagonist}, surrounded by an aura of primordial authority that distorted the very air. "You have climbed far from humble beginnings," the adversary intoned, voice resonating like tolling bronze.</p>
         <p>${themeKeywords.hero} raised ${themeKeywords.artifact}, its crystalline facets shining with the gathered willpower of a hundred trials. "I did not climb to take your throne. I climbed to ensure no master ever stands upon this realm again."</p>
-        <p>With a thunderous clash that split the firmament, the final trial commenced.</p>
+        <p>With a thunderous clash that split the firmament, the final trial of Chapter ${i} commenced.</p>
       `;
     }
 
@@ -67,6 +70,7 @@ export const EXTENDED_NOVELS: Novel[] = [
     id: 12,
     title: "Dao of the Wandering Blacksmith",
     author: "Master Mo Ironheart",
+    coverImage: '/covers/wandering_blacksmith.jpg',
     fallbackGradient: "from-amber-950 via-orange-950 to-stone-950",
     genre: "Xianxia",
     tags: ["Crafting", "Immortal Forging", "Daoist Philosophy", "Slow Burn", "Artifact Spirit"],
@@ -113,6 +117,7 @@ export const EXTENDED_NOVELS: Novel[] = [
     id: 13,
     title: "The Herbalist Who Plucked the Moon",
     author: "Apothecary Bai",
+    coverImage: '/covers/herbalist_moon.jpg',
     fallbackGradient: "from-teal-950 via-emerald-950 to-slate-950",
     genre: "Xianxia",
     tags: ["Herbalism", "Spirit Beasts", "Alchemy", "Quiet Progression", "Misty Peaks"],
@@ -155,6 +160,7 @@ export const EXTENDED_NOVELS: Novel[] = [
     id: 14,
     title: "The Zero-Mana Climber",
     author: "Vance Croft",
+    coverImage: '/covers/zero_mana_climber.jpg',
     fallbackGradient: "from-blue-950 via-slate-950 to-indigo-950",
     genre: "LitRPG",
     tags: ["Tower Climbing", "Zero Magic", "Kinetic Build", "Grit", "System Mechanics"],
@@ -194,6 +200,7 @@ export const EXTENDED_NOVELS: Novel[] = [
     id: 15,
     title: "Blacksmithing in the Apocalypse",
     author: "Garrett Stone",
+    coverImage: '/covers/apocalypse_forge.jpg',
     fallbackGradient: "from-red-950 via-zinc-950 to-stone-900",
     genre: "LitRPG",
     tags: ["Base Building", "Crafting", "Apocalypse", "Armorer", "Zombies & Mutants"],
@@ -230,6 +237,7 @@ export const EXTENDED_NOVELS: Novel[] = [
     id: 16,
     title: "The Bone Carver of Winterfall",
     author: "Kaelen Ward",
+    coverImage: '/covers/bone_carver.jpg',
     fallbackGradient: "from-slate-900 via-zinc-950 to-neutral-900",
     genre: "Fantasy",
     tags: ["Dark Fantasy", "Bone Magic", "Northern Waste", "Grimdark", "Runes"],
@@ -266,6 +274,7 @@ export const EXTENDED_NOVELS: Novel[] = [
     id: 17,
     title: "Echoes of the Sunken Citadel",
     author: "Aria Swift",
+    coverImage: '/covers/sunken_citadel.jpg',
     fallbackGradient: "from-blue-950 via-teal-950 to-stone-950",
     genre: "Fantasy",
     tags: ["Ancient Civilizations", "Submerged Ruins", "Tide Magic", "Exploration", "Lost Relics"],
@@ -299,6 +308,7 @@ export const EXTENDED_NOVELS: Novel[] = [
     id: 18,
     title: "Silicon Heartbeat: 2088",
     author: "Cipher Reed",
+    coverImage: '/covers/silicon_heartbeat.jpg',
     fallbackGradient: "from-purple-950 via-zinc-950 to-slate-950",
     genre: "Cyberpunk",
     tags: ["Cyber Noir", "Synthetic Life", "Megacity", "Hackers", "Bioluminescent"],
@@ -332,6 +342,7 @@ export const EXTENDED_NOVELS: Novel[] = [
     id: 19,
     title: "The Last Colony on Europa",
     author: "Dr. Isaac Cole",
+    coverImage: '/covers/europa_colony.jpg',
     fallbackGradient: "from-cyan-950 via-slate-950 to-black",
     genre: "Sci-Fi",
     tags: ["Hard Sci-Fi", "Alien Ocean", "Sub-Surface Base", "Isolation", "First Contact"],
@@ -364,6 +375,7 @@ export const EXTENDED_NOVELS: Novel[] = [
     id: 20,
     title: "Aether & Brass: The Airship Odyssey",
     author: "Captain Thorne",
+    coverImage: '/covers/airship_odyssey.jpg',
     fallbackGradient: "from-amber-900 via-stone-900 to-amber-950",
     genre: "Steampunk",
     tags: ["Airships", "Aether Propellers", "Sky Pirates", "Victorian Engineering", "Grand Adventure"],
@@ -395,6 +407,7 @@ export const EXTENDED_NOVELS: Novel[] = [
     id: 21,
     title: "The Contract of the Raven Duke",
     author: "Lady Corinna",
+    coverImage: '/covers/raven_duke.jpg',
     fallbackGradient: "from-purple-950 via-slate-900 to-rose-950",
     genre: "Romance",
     tags: ["Enemies to Lovers", "Aristocratic Intrigue", "Arranged Marriage", "Gothic Romance", "Magic Seals"],
@@ -428,6 +441,7 @@ export const EXTENDED_NOVELS: Novel[] = [
     id: 22,
     title: "The Witch and the Northern Knight",
     author: "Elspeth Vale",
+    coverImage: '/covers/witch_northern_knight.jpg',
     fallbackGradient: "from-rose-950 via-indigo-950 to-neutral-900",
     genre: "Romance",
     tags: ["Forbidden Love", "Winter Romance", "Hedge Witch", "Honorable Knight", "Cozy Magic"],
@@ -459,6 +473,7 @@ export const EXTENDED_NOVELS: Novel[] = [
     id: 23,
     title: "The Bloodhound of Foggy Docks",
     author: "Inspector Gideon Vance",
+    coverImage: '/covers/foggy_docks.jpg',
     fallbackGradient: "from-stone-900 via-slate-900 to-amber-950",
     genre: "Mystery",
     tags: ["Victorian Detective", "Serial Murders", "Foggy London", "Forensics", "Clever Protagonist"],
@@ -490,6 +505,7 @@ export const EXTENDED_NOVELS: Novel[] = [
     id: 24,
     title: "The Midnight Pawn Shop",
     author: "Mr. Orpheus",
+    coverImage: '/covers/midnight_pawn.jpg',
     fallbackGradient: "from-zinc-950 via-stone-900 to-purple-950",
     genre: "Mystery",
     tags: ["Urban Mystery", "Cursed Items", "Soul Barter", "Episodic", "Supernatural"],
@@ -521,6 +537,7 @@ export const EXTENDED_NOVELS: Novel[] = [
     id: 25,
     title: "Drunken Sword of the Western Pass",
     author: "Li Baiyun",
+    coverImage: '/covers/drunken_sword.jpg',
     fallbackGradient: "from-red-950 via-amber-950 to-neutral-900",
     genre: "Wuxia",
     tags: ["Drunken Fist", "Desert Pass", "Sword Intent", "Brotherhood", "Traditional Jianghu"],
@@ -552,6 +569,7 @@ export const EXTENDED_NOVELS: Novel[] = [
     id: 26,
     title: "The Iron Flute Scholar",
     author: "Master Shen",
+    coverImage: '/covers/iron_flute.jpg',
     fallbackGradient: "from-emerald-950 via-neutral-950 to-stone-900",
     genre: "Wuxia",
     tags: ["Sound Attacks", "Scholar Swordsman", "Bamboo Grove", "Righteousness", "Jianghu"],
@@ -583,6 +601,7 @@ export const EXTENDED_NOVELS: Novel[] = [
     id: 27,
     title: "Night Hunter: Seoul Protocol",
     author: "Jin-Woo Park",
+    coverImage: '/covers/spatial_mage.jpg',
     fallbackGradient: "from-blue-950 via-purple-950 to-black",
     genre: "Action",
     tags: ["Urban Fantasy", "Dungeon Gates", "Shadow Assassins", "Seoul Underworld", "Overpowered"],
@@ -615,6 +634,7 @@ export const EXTENDED_NOVELS: Novel[] = [
     id: 28,
     title: "The Whisperers in the Birch Forest",
     author: "Silas Crowley",
+    coverImage: '/covers/tower_babel_99.jpg',
     fallbackGradient: "from-zinc-950 via-stone-900 to-black",
     genre: "Mystery",
     tags: ["Psychological Horror", "Folk Horror", "Dark Folklore", "Supernatural", "Eerie Atmosphere"],
@@ -646,6 +666,7 @@ export const EXTENDED_NOVELS: Novel[] = [
     id: 29,
     title: "The Silk Road Corsair",
     author: "Tariq Ibn Malik",
+    coverImage: '/covers/whitechapel_alch.jpg',
     fallbackGradient: "from-amber-950 via-orange-950 to-stone-900",
     genre: "Action",
     tags: ["Historical Adventure", "Caravans", "Silk Road", "Desert Combat", "Lost Treasure"],
@@ -677,6 +698,7 @@ export const EXTENDED_NOVELS: Novel[] = [
     id: 30,
     title: "The Tea Master on the Astral Border",
     author: "Master Oakhaven",
+    coverImage: '/covers/neon_samurai.jpg',
     fallbackGradient: "from-emerald-950 via-teal-950 to-amber-950",
     genre: "Fantasy",
     tags: ["Cozy Fantasy", "Tea Brewing", "Dimensional Travellers", "Wholesome", "Healing"],
@@ -708,6 +730,7 @@ export const EXTENDED_NOVELS: Novel[] = [
     id: 31,
     title: "The Runecrafter's Foundry",
     author: "Dennis Miller",
+    coverImage: '/covers/necromancer_tea.jpg',
     fallbackGradient: "from-indigo-950 via-slate-900 to-cyan-950",
     genre: "Fantasy",
     tags: ["Rune Magic", "Magic Engineering", "Progression", "Apprenticeship", "Academy"],

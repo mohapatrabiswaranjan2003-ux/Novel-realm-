@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { Novel, Chapter, ReaderSettings, Bookmark } from '../types/novel';
+import { UserAccount } from '../types/auth';
 import { applyBionicReading, recordChapterRead } from '../utils/readingStorage';
 import { ChapterTocDrawer } from './ChapterTocDrawer';
 import { ReaderSettingsDrawer } from './ReaderSettingsDrawer';
@@ -9,6 +10,7 @@ import { RobustTTSEngine, TTSState } from '../utils/ttsEngine';
 import { translateContent, SUPPORTED_LANGUAGES, getVoicesForLanguage } from '../utils/translationService';
 import { MonetizationSection } from './MonetizationSection';
 import { ChapterPaywall } from './ChapterPaywall';
+import { GuestChapterGate } from './GuestChapterGate';
 import { VipUnlockModal } from './VipUnlockModal';
 import { ChapterComments } from './ChapterComments';
 import { ShareModal } from './ShareModal';
@@ -49,6 +51,8 @@ interface ReaderViewProps {
   founderNovels?: number[];
   onUnlockBookPermanently?: (novelId: number) => void;
   onClaimDailyPass?: (chapterId: number) => void;
+  currentUser?: UserAccount | null;
+  onOpenAuth?: (mode?: 'login' | 'reader-signup') => void;
 }
 
 export const ReaderView: React.FC<ReaderViewProps> = ({
@@ -69,6 +73,8 @@ export const ReaderView: React.FC<ReaderViewProps> = ({
   founderNovels = [],
   onUnlockBookPermanently,
   onClaimDailyPass,
+  currentUser,
+  onOpenAuth,
 }) => {
   const [currentChapterId, setCurrentChapterId] = useState<number>(
     initialChapterId || novel.chapters[0]?.id || 1
@@ -140,6 +146,11 @@ export const ReaderView: React.FC<ReaderViewProps> = ({
       founderNovels
     );
   }, [novel, currentChapter, unlockedBooks, dailyClaimedChapters, founderNovels]);
+
+  // Generous 3-Chapter Free Guest Preview (Chapters 1, 2, and 3 are 100% free for visitors & Googlebot)
+  const isGuestLocked = useMemo(() => {
+    return !currentUser && chapterIndex >= 3;
+  }, [currentUser, chapterIndex]);
 
   const canClaimToday = useMemo(() => {
     return canClaimDailyPass();
@@ -543,8 +554,19 @@ export const ReaderView: React.FC<ReaderViewProps> = ({
             </div>
           )}
 
-          {/* Chapter Body Prose OR Paywall if Locked */}
-          {lockStatus.isLocked ? (
+          {/* Chapter Body Prose OR Guest Gate OR VIP Milestone Paywall */}
+          {isGuestLocked ? (
+            <GuestChapterGate
+              novel={novel}
+              chapter={currentChapter}
+              onOpenAuth={(mode) => onOpenAuth?.(mode || 'reader-signup')}
+              onBackToPreview={() => {
+                const prevFreeChapter = novel.chapters[2] || novel.chapters[0];
+                if (prevFreeChapter) setCurrentChapterId(prevFreeChapter.id);
+              }}
+              onBackToLibrary={onBackToLibrary}
+            />
+          ) : lockStatus.isLocked ? (
             <ChapterPaywall
               novel={novel}
               chapter={currentChapter}

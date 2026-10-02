@@ -61,6 +61,7 @@ export default function App() {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [authModalMode, setAuthModalMode] = useState<'login' | 'reader-signup' | 'writer-signup'>('login');
   const [isWriterExamOpen, setIsWriterExamOpen] = useState(false);
+  const [isGuestBannerDismissed, setIsGuestBannerDismissed] = useState(false);
 
   // Modals state
   const [isAddNovelOpen, setIsAddNovelOpen] = useState(false);
@@ -335,38 +336,6 @@ export default function App() {
     setCurrentView('reader');
   };
 
-  // MANDATORY SIGN-IN GATE: Users cannot view the homepage, novels, or reader until authenticated
-  if (!currentUser) {
-    return (
-      <div className="min-h-screen text-[var(--text-primary)] font-clean-sans flex flex-col justify-center items-center p-4 relative overflow-hidden select-none bg-slate-950">
-        {/* Cinematic Fantasy Webnovel Wallpaper (Gentle Subtle Blur for Clarity) */}
-        <div
-          className="absolute inset-0 bg-cover bg-center bg-no-repeat scale-102 filter blur-[2px] contrast-105 brightness-90 transition-transform duration-1000"
-          style={{ backgroundImage: `url('/auth-bg.jpg')` }}
-        />
-
-        {/* Ambient Subtle Vignette Overlay for Crisp Contrast */}
-        <div className="absolute inset-0 bg-gradient-to-t from-slate-950/70 via-slate-950/25 to-slate-950/60 pointer-events-none" />
-
-        {/* Subtle Ambient Decorative Glows */}
-        <div className="absolute top-1/4 left-1/4 -translate-x-1/2 w-96 h-96 bg-blue-600/20 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute bottom-1/4 right-1/4 translate-x-1/2 w-96 h-96 bg-amber-500/15 rounded-full blur-3xl pointer-events-none" />
-
-        {/* Mandatory Authentication Modal / Gate */}
-        <AuthModal
-          isOpen={true}
-          isBarrier={true}
-          defaultMode={authModalMode}
-          onClose={() => {}}
-          onSuccess={(user) => {
-            setCurrentUser(user);
-          }}
-          onOpenWriterExam={() => setIsWriterExamOpen(true)}
-        />
-      </div>
-    );
-  }
-
   return (
     <div className={`min-h-screen bg-[var(--bg-main)] text-[var(--text-primary)] font-clean-sans transition-colors duration-200 overflow-x-hidden w-full max-w-full ${currentView !== 'reader' ? 'pb-16 md:pb-0' : ''}`}>
       
@@ -394,6 +363,11 @@ export default function App() {
           }}
           onOpenPowerVotes={() => setIsPowerVotesOpen(true)}
           onOpenAuthorStudio={() => {
+            if (!currentUser) {
+              setAuthModalMode('writer-signup');
+              setIsAuthModalOpen(true);
+              return;
+            }
             setAuthorStudioNovelId(undefined);
             setIsAuthorStudioOpen(true);
           }}
@@ -415,6 +389,35 @@ export default function App() {
           }}
           onOpenWriterExam={() => setIsWriterExamOpen(true)}
         />
+      )}
+
+      {/* Guest Preview Notification Banner (Dismissible, allows full browsing & Chapter 1-3 reading) */}
+      {!currentUser && !isGuestBannerDismissed && currentView !== 'reader' && (
+        <aside aria-label="Guest reading preview notice" className="bg-gradient-to-r from-blue-900/90 via-indigo-900/90 to-blue-950/90 text-white text-xs px-4 py-2 border-b border-blue-500/30 shadow-xs flex items-center justify-between">
+          <div className="flex items-center gap-2 max-w-4xl mx-auto flex-wrap justify-center">
+            <span className="text-amber-400 font-bold flex items-center gap-1">
+              ✨ <span>Guest Preview:</span>
+            </span>
+            <span>Enjoy free reading of Chapters 1–3 across all web novels in our library!</span>
+            <button
+              onClick={() => {
+                setAuthModalMode('reader-signup');
+                setIsAuthModalOpen(true);
+              }}
+              className="font-bold underline text-amber-300 hover:text-white ml-1 transition-colors"
+            >
+              Sign Up Free
+            </button>
+          </div>
+          <button
+            onClick={() => setIsGuestBannerDismissed(true)}
+            className="p-1 hover:bg-white/10 rounded text-slate-300 hover:text-white transition-colors ml-2"
+            title="Dismiss notice"
+            aria-label="Dismiss notice"
+          >
+            ✕
+          </button>
+        </aside>
       )}
 
       {/* Main Content Area */}
@@ -459,6 +462,11 @@ export default function App() {
           founderNovels={founderNovels}
           onUnlockBookPermanently={handleUnlockBookPermanently}
           onClaimDailyPass={handleClaimDailyPass}
+          currentUser={currentUser}
+          onOpenAuth={(mode) => {
+            setAuthModalMode(mode || 'login');
+            setIsAuthModalOpen(true);
+          }}
         />
       )}
 
