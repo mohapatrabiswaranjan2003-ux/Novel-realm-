@@ -1,8 +1,7 @@
 /**
- * High-reliability Mobile & Desktop TTS Engine (WTR-Lab Style)
- * Splits text into paragraphs in lockstep with the reader DOM,
- * circumvents mobile browser speech pauses, supports live speed switching,
- * voice switching, and smooth paragraph jumping on click.
+ * Ultra-Smooth, Zero-Lag TTS Engine
+ * Continuous, uninterrupted paragraph narration across mobile and desktop.
+ * Holds persistent utterance reference to prevent Chrome/Safari garbage collection drops.
  */
 
 import { VoiceOption, getVoicesForLanguage, SUPPORTED_LANGUAGES } from './translationService';
@@ -32,7 +31,10 @@ export class RobustTTSEngine {
   private onParagraphChangeCallback?: (index: number) => void;
   private onEndCallback?: () => void;
   private onStateChangeCallback?: (state: Partial<TTSState>) => void;
-  private keepAliveInterval: any = null;
+  
+  // CRITICAL: Persistent reference prevents JavaScript GC from killing the utterance mid-sentence
+  private currentUtterance: SpeechSynthesisUtterance | null = null;
+  private nextParagraphTimer: any = null;
 
   constructor() {
     this.initVoices();
@@ -42,7 +44,12 @@ export class RobustTTSEngine {
     if (typeof window === 'undefined' || !('speechSynthesis' in window)) return;
 
     const load = () => {
-      this.availableSystemVoices = window.speechSynthesis.getVoices();
+      try {
+        const voices = window.speechSynthesis.getVoices();
+        if (voices && voices.length > 0) {
+          this.availableSystemVoices = voices;
+        }
+      } catch {}
     };
 
     load();
@@ -52,7 +59,7 @@ export class RobustTTSEngine {
   }
 
   /**
-   * Set paragraphs directly in 1:1 lockstep with the Reader DOM paragraphs
+   * Set paragraphs directly in 1:1 sync with the Reader
    */
   public setParagraphs(paragraphs: string[], preservePosition: boolean = false) {
     this.paragraphs = paragraphs.filter((p) => p && p.trim().length > 0);
@@ -61,28 +68,6 @@ export class RobustTTSEngine {
     } else {
       this.currentIndex = Math.min(this.currentIndex, Math.max(0, this.paragraphs.length - 1));
     }
-    this.emitState();
-  }
-
-  public setContent(htmlContent: string) {
-    if (typeof window === 'undefined') return;
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(htmlContent, 'text/html');
-    const pElements = Array.from(doc.querySelectorAll('p'));
-
-    if (pElements.length > 0) {
-      this.paragraphs = pElements
-        .map((p) => (p.textContent || '').trim())
-        .filter((text) => text.length > 0);
-    } else {
-      const rawText = doc.body.textContent || '';
-      this.paragraphs = rawText
-        .split(/\n+/)
-        .map((t) => t.trim())
-        .filter((t) => t.length > 0);
-    }
-
-    this.currentIndex = 0;
     this.emitState();
   }
 
@@ -102,9 +87,8 @@ export class RobustTTSEngine {
     this.selectedVoiceId = voiceId;
     this.emitState();
 
-    // If currently speaking, immediately switch to the new voice seamlessly
     if (this.isPlaying && !this.isPaused && !langChanged) {
-      window.speechSynthesis.cancel();
+      this.cancelAudio();
       this.speakCurrentParagraph();
     }
   }
@@ -112,9 +96,8 @@ export class RobustTTSEngine {
   public setRate(newRate: number) {
     this.rate = newRate;
     this.emitState();
-    // Seamlessly re-apply rate to currently speaking utterance
     if (this.isPlaying && !this.isPaused) {
-      window.speechSynthesis.cancel();
+      this.cancelAudio();
       this.speakCurrentParagraph();
     }
   }
@@ -127,32 +110,35 @@ export class RobustTTSEngine {
       this.isPaused = false;
       this.isPlaying = true;
       this.emitState();
-      this.startKeepAlive();
-      window.speechSynthesis.resume();
+      
+      // If browser paused speech natively, try resume; if it stalled, re-speak current paragraph
+      try {
+        window.speechSynthesis.resume();
+      } catch {}
 
-      // Guard against Chrome browser resume failure
       setTimeout(() => {
         if (!window.speechSynthesis.speaking && this.isPlaying) {
           this.speakCurrentParagraph();
         }
-      }, 150);
+      }, 100);
       return;
     }
 
-    window.speechSynthesis.cancel();
+    this.cancelAudio();
     this.isPlaying = true;
     this.isPaused = false;
     this.emitState();
-    this.startKeepAlive();
     this.speakCurrentParagraph();
   }
 
   public pause() {
     if (typeof window === 'undefined' || !('speechSynthesis' in window)) return;
+    this.clearTimer();
     this.isPlaying = false;
     this.isPaused = true;
-    this.stopKeepAlive();
-    window.speechSynthesis.pause();
+    try {
+      window.speechSynthesis.pause();
+    } catch {}
     this.emitState();
   }
 
@@ -162,8 +148,8 @@ export class RobustTTSEngine {
 
   public stop() {
     if (typeof window === 'undefined' || !('speechSynthesis' in window)) return;
-    this.stopKeepAlive();
-    window.speechSynthesis.cancel();
+    this.clearTimer();
+    this.cancelAudio();
     this.isPlaying = false;
     this.isPaused = false;
     this.currentIndex = 0;
@@ -174,10 +160,11 @@ export class RobustTTSEngine {
   }
 
   public nextParagraph() {
+    this.clearTimer();
     if (this.currentIndex < this.paragraphs.length - 1) {
       this.currentIndex++;
       if (this.isPlaying) {
-        window.speechSynthesis.cancel();
+        this.cancelAudio();
         this.speakCurrentParagraph();
       } else {
         this.emitState();
@@ -192,10 +179,11 @@ export class RobustTTSEngine {
   }
 
   public prevParagraph() {
+    this.clearTimer();
     if (this.currentIndex > 0) {
       this.currentIndex--;
       if (this.isPlaying) {
-        window.speechSynthesis.cancel();
+        this.cancelAudio();
         this.speakCurrentParagraph();
       } else {
         this.emitState();
@@ -207,10 +195,11 @@ export class RobustTTSEngine {
   }
 
   public jumpToParagraph(index: number) {
+    this.clearTimer();
     if (index >= 0 && index < this.paragraphs.length) {
       this.currentIndex = index;
       if (this.isPlaying) {
-        window.speechSynthesis.cancel();
+        this.cancelAudio();
         this.speakCurrentParagraph();
       } else {
         this.emitState();
@@ -221,9 +210,24 @@ export class RobustTTSEngine {
     }
   }
 
+  private cancelAudio() {
+    try {
+      window.speechSynthesis.cancel();
+    } catch {}
+    this.currentUtterance = null;
+  }
+
+  private clearTimer() {
+    if (this.nextParagraphTimer) {
+      clearTimeout(this.nextParagraphTimer);
+      this.nextParagraphTimer = null;
+    }
+  }
+
   private speakCurrentParagraph() {
     if (!this.isPlaying) return;
     if (this.paragraphs.length === 0) return;
+
     if (this.currentIndex >= this.paragraphs.length) {
       this.stop();
       if (this.onEndCallback) this.onEndCallback();
@@ -232,7 +236,8 @@ export class RobustTTSEngine {
 
     const text = this.paragraphs[this.currentIndex];
     if (!text || text.trim().length === 0) {
-      this.nextParagraph();
+      this.currentIndex++;
+      this.speakCurrentParagraph();
       return;
     }
 
@@ -241,38 +246,59 @@ export class RobustTTSEngine {
     }
     this.emitState();
 
-    window.speechSynthesis.cancel();
+    this.cancelAudio();
 
-    // Fresh voice list check if not loaded initially
     if (this.availableSystemVoices.length === 0 && 'speechSynthesis' in window) {
-      this.availableSystemVoices = window.speechSynthesis.getVoices();
+      try {
+        this.availableSystemVoices = window.speechSynthesis.getVoices();
+      } catch {}
     }
 
     const utterance = new SpeechSynthesisUtterance(text);
+    // Keep reference on instance to defeat garbage collection bug
+    this.currentUtterance = utterance;
+
     this.applyVoiceSettings(utterance);
 
+    // Continuous playback: smoothly progress to the next paragraph
     utterance.onend = () => {
-      if (this.isPlaying) {
-        if (this.currentIndex < this.paragraphs.length - 1) {
-          this.currentIndex++;
-          this.speakCurrentParagraph();
-        } else {
-          this.stop();
-          if (this.onEndCallback) this.onEndCallback();
-        }
+      this.currentUtterance = null;
+      if (!this.isPlaying || this.isPaused) return;
+
+      if (this.currentIndex < this.paragraphs.length - 1) {
+        this.currentIndex++;
+        // Clean 40ms micro-pause between paragraphs for natural breathing
+        this.clearTimer();
+        this.nextParagraphTimer = setTimeout(() => {
+          if (this.isPlaying && !this.isPaused) {
+            this.speakCurrentParagraph();
+          }
+        }, 40);
+      } else {
+        this.stop();
+        if (this.onEndCallback) this.onEndCallback();
       }
     };
 
     utterance.onerror = (e) => {
+      this.currentUtterance = null;
       if (e.error === 'interrupted' || e.error === 'canceled') return;
-      console.warn('TTS utterance error:', e.error);
-      if (this.isPlaying) {
+      if (this.isPlaying && !this.isPaused) {
         this.currentIndex++;
-        this.speakCurrentParagraph();
+        this.clearTimer();
+        this.nextParagraphTimer = setTimeout(() => {
+          if (this.isPlaying && !this.isPaused) {
+            this.speakCurrentParagraph();
+          }
+        }, 40);
       }
     };
 
-    window.speechSynthesis.speak(utterance);
+    try {
+      window.speechSynthesis.speak(utterance);
+    } catch (err) {
+      console.warn('SpeechSynthesis error:', err);
+    }
   }
 
   private applyVoiceSettings(utterance: SpeechSynthesisUtterance) {
@@ -288,7 +314,6 @@ export class RobustTTSEngine {
     utterance.pitch = selectedVoiceOption?.pitch ?? 1.0;
     utterance.rate = this.rate * (selectedVoiceOption?.rate ?? 1.0);
 
-    // Find the best matching device voice
     if (this.availableSystemVoices.length > 0) {
       const langPrefix = this.currentLanguage.split('-')[0].toLowerCase();
       const matches = this.availableSystemVoices.filter((v) =>
@@ -325,7 +350,7 @@ export class RobustTTSEngine {
 
   public testVoice(langCode: string, voiceId: string, testText: string) {
     if (typeof window === 'undefined' || !('speechSynthesis' in window)) return;
-    window.speechSynthesis.cancel();
+    this.cancelAudio();
 
     const utterance = new SpeechSynthesisUtterance(testText);
     const langObj =
@@ -362,25 +387,9 @@ export class RobustTTSEngine {
       }
     }
 
-    window.speechSynthesis.speak(utterance);
-  }
-
-  private startKeepAlive() {
-    this.stopKeepAlive();
-    // Android & Chrome bug workaround: speech halts after 14s unless refreshed
-    this.keepAliveInterval = setInterval(() => {
-      if (this.isPlaying && !this.isPaused) {
-        window.speechSynthesis.pause();
-        window.speechSynthesis.resume();
-      }
-    }, 10000);
-  }
-
-  private stopKeepAlive() {
-    if (this.keepAliveInterval) {
-      clearInterval(this.keepAliveInterval);
-      this.keepAliveInterval = null;
-    }
+    try {
+      window.speechSynthesis.speak(utterance);
+    } catch {}
   }
 
   private emitState() {

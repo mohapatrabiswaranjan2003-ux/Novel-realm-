@@ -397,7 +397,12 @@ const ReaderViewInner: React.FC<ReaderViewProps> = ({
         if (idx >= 0) {
           const el = document.getElementById(`para-${idx}`);
           if (el) {
-            el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            const rect = el.getBoundingClientRect();
+            // Smoothly scroll only when paragraph is out of comfortable reading view
+            const isOutOfView = rect.top < 70 || rect.bottom > (window.innerHeight - 110);
+            if (isOutOfView) {
+              el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
           }
         }
       },
