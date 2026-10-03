@@ -322,27 +322,49 @@ export class RobustTTSEngine {
 
       if (matches.length > 0) {
         if (selectedVoiceOption?.gender === 'female') {
-          const femaleMatch = matches.find(
+          const isFemale2 = selectedVoiceOption.id.endsWith('-f2');
+          const femaleMatches = matches.filter(
             (v) =>
               v.name.toLowerCase().includes('female') ||
               v.name.toLowerCase().includes('woman') ||
               v.name.toLowerCase().includes('zira') ||
               v.name.toLowerCase().includes('samantha') ||
               v.name.toLowerCase().includes('kavya') ||
-              v.name.toLowerCase().includes('lekha')
+              v.name.toLowerCase().includes('lekha') ||
+              v.name.toLowerCase().includes('victoria') ||
+              v.name.toLowerCase().includes('monica')
           );
-          utterance.voice = femaleMatch || matches[0];
+          if (femaleMatches.length > 1 && isFemale2) {
+            utterance.voice = femaleMatches[1];
+          } else if (femaleMatches.length > 0) {
+            utterance.voice = femaleMatches[0];
+          } else {
+            utterance.voice = matches[isFemale2 && matches.length > 1 ? 1 : 0];
+          }
         } else {
-          const maleMatch = matches.find(
+          const isM1 = selectedVoiceOption.id.endsWith('-m1');
+          const isM2 = selectedVoiceOption.id.endsWith('-m2');
+          const isM3 = selectedVoiceOption.id.endsWith('-m3');
+          const maleMatches = matches.filter(
             (v) =>
               v.name.toLowerCase().includes('male') ||
               v.name.toLowerCase().includes('guy') ||
               v.name.toLowerCase().includes('david') ||
               v.name.toLowerCase().includes('george') ||
               v.name.toLowerCase().includes('rishi') ||
-              v.name.toLowerCase().includes('ajay')
+              v.name.toLowerCase().includes('ajay') ||
+              v.name.toLowerCase().includes('daniel')
           );
-          utterance.voice = maleMatch || matches[0];
+          if (maleMatches.length >= 3) {
+            utterance.voice = isM1 ? maleMatches[0] : isM2 ? maleMatches[1] : maleMatches[2];
+          } else if (maleMatches.length === 2) {
+            utterance.voice = isM3 ? maleMatches[1] : isM1 ? maleMatches[0] : maleMatches[1];
+          } else if (maleMatches.length === 1) {
+            utterance.voice = maleMatches[0];
+          } else {
+            const voiceIdx = isM1 ? 0 : isM2 ? (matches.length > 1 ? 1 : 0) : (matches.length > 2 ? 2 : matches.length - 1);
+            utterance.voice = matches[voiceIdx];
+          }
         }
       }
     }
@@ -371,19 +393,46 @@ export class RobustTTSEngine {
 
     if (systemMatches.length > 0) {
       if (voiceOption?.gender === 'female') {
-        const femaleMatch = systemMatches.find(
+        const isFemale2 = voiceOption.id.endsWith('-f2');
+        const femaleMatches = systemMatches.filter(
           (v) =>
             v.name.toLowerCase().includes('female') ||
-            v.name.toLowerCase().includes('woman')
+            v.name.toLowerCase().includes('woman') ||
+            v.name.toLowerCase().includes('zira') ||
+            v.name.toLowerCase().includes('samantha') ||
+            v.name.toLowerCase().includes('kavya') ||
+            v.name.toLowerCase().includes('lekha')
         );
-        utterance.voice = femaleMatch || systemMatches[0];
+        if (femaleMatches.length > 1 && isFemale2) {
+          utterance.voice = femaleMatches[1];
+        } else if (femaleMatches.length > 0) {
+          utterance.voice = femaleMatches[0];
+        } else {
+          utterance.voice = systemMatches[isFemale2 && systemMatches.length > 1 ? 1 : 0];
+        }
       } else {
-        const maleMatch = systemMatches.find(
+        const isM1 = voiceOption.id.endsWith('-m1');
+        const isM2 = voiceOption.id.endsWith('-m2');
+        const isM3 = voiceOption.id.endsWith('-m3');
+        const maleMatches = systemMatches.filter(
           (v) =>
             v.name.toLowerCase().includes('male') ||
-            v.name.toLowerCase().includes('guy')
+            v.name.toLowerCase().includes('guy') ||
+            v.name.toLowerCase().includes('david') ||
+            v.name.toLowerCase().includes('george') ||
+            v.name.toLowerCase().includes('rishi') ||
+            v.name.toLowerCase().includes('ajay')
         );
-        utterance.voice = maleMatch || systemMatches[0];
+        if (maleMatches.length >= 3) {
+          utterance.voice = isM1 ? maleMatches[0] : isM2 ? maleMatches[1] : maleMatches[2];
+        } else if (maleMatches.length === 2) {
+          utterance.voice = isM3 ? maleMatches[1] : maleMatches[0];
+        } else if (maleMatches.length === 1) {
+          utterance.voice = maleMatches[0];
+        } else {
+          const voiceIdx = isM1 ? 0 : isM2 ? (systemMatches.length > 1 ? 1 : 0) : (systemMatches.length > 2 ? 2 : systemMatches.length - 1);
+          utterance.voice = systemMatches[voiceIdx];
+        }
       }
     }
 
