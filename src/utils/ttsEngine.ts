@@ -1,10 +1,11 @@
 /**
- * High-reliability Mobile TTS Engine
- * Splits text into paragraphs, circumvents mobile Chrome 15-second utterance timeout,
- * and manages real voice synthesis with 5 distinct gender/style profiles per language.
+ * High-reliability Mobile & Desktop TTS Engine (WTR-Lab Style)
+ * Splits text into paragraphs in lockstep with the reader DOM,
+ * circumvents mobile browser speech pauses, supports live speed switching,
+ * voice switching, and smooth paragraph jumping on click.
  */
 
-import { VoiceOption, getVoicesForLanguage } from './translationService';
+import { VoiceOption, getVoicesForLanguage, SUPPORTED_LANGUAGES } from './translationService';
 
 export interface TTSState {
   isPlaying: boolean;
@@ -50,9 +51,21 @@ export class RobustTTSEngine {
     }
   }
 
+  /**
+   * Set paragraphs directly in 1:1 lockstep with the Reader DOM paragraphs
+   */
+  public setParagraphs(paragraphs: string[], preservePosition: boolean = false) {
+    this.paragraphs = paragraphs.filter((p) => p && p.trim().length > 0);
+    if (!preservePosition) {
+      this.currentIndex = 0;
+    } else {
+      this.currentIndex = Math.min(this.currentIndex, Math.max(0, this.paragraphs.length - 1));
+    }
+    this.emitState();
+  }
+
   public setContent(htmlContent: string) {
-    this.stop();
-    // Parse into distinct clean paragraphs
+    if (typeof window === 'undefined') return;
     const parser = new DOMParser();
     const doc = parser.parseFromString(htmlContent, 'text/html');
     const pElements = Array.from(doc.querySelectorAll('p'));
@@ -62,7 +75,6 @@ export class RobustTTSEngine {
         .map((p) => (p.textContent || '').trim())
         .filter((text) => text.length > 0);
     } else {
-      // Fallback: split by linebreaks
       const rawText = doc.body.textContent || '';
       this.paragraphs = rawText
         .split(/\n+/)
@@ -71,6 +83,7 @@ export class RobustTTSEngine {
     }
 
     this.currentIndex = 0;
+    this.emitState();
   }
 
   public setCallbacks(
@@ -84,12 +97,26 @@ export class RobustTTSEngine {
   }
 
   public setLanguageAndVoice(langCode: string, voiceId: string) {
+    const langChanged = this.currentLanguage !== langCode;
     this.currentLanguage = langCode;
     this.selectedVoiceId = voiceId;
+    this.emitState();
+
+    // If currently speaking, immediately switch to the new voice seamlessly
+    if (this.isPlaying && !this.isPaused && !langChanged) {
+      window.speechSynthesis.cancel();
+      this.speakCurrentParagraph();
+    }
   }
 
   public setRate(newRate: number) {
     this.rate = newRate;
+    this.emitState();
+    // Seamlessly re-apply rate to currently speaking utterance
+    if (this.isPlaying && !this.isPaused) {
+      window.speechSynthesis.cancel();
+      this.speakCurrentParagraph();
+    }
   }
 
   public play() {
@@ -97,11 +124,18 @@ export class RobustTTSEngine {
     if (this.paragraphs.length === 0) return;
 
     if (this.isPaused) {
-      window.speechSynthesis.resume();
       this.isPaused = false;
       this.isPlaying = true;
       this.emitState();
       this.startKeepAlive();
+      window.speechSynthesis.resume();
+
+      // Guard against Chrome browser resume failure
+      setTimeout(() => {
+        if (!window.speechSynthesis.speaking && this.isPlaying) {
+          this.speakCurrentParagraph();
+        }
+      }, 150);
       return;
     }
 
@@ -115,10 +149,10 @@ export class RobustTTSEngine {
 
   public pause() {
     if (typeof window === 'undefined' || !('speechSynthesis' in window)) return;
-    window.speechSynthesis.pause();
-    this.isPaused = true;
     this.isPlaying = false;
+    this.isPaused = true;
     this.stopKeepAlive();
+    window.speechSynthesis.pause();
     this.emitState();
   }
 
@@ -146,6 +180,7 @@ export class RobustTTSEngine {
         window.speechSynthesis.cancel();
         this.speakCurrentParagraph();
       } else {
+        this.emitState();
         if (this.onParagraphChangeCallback) {
           this.onParagraphChangeCallback(this.currentIndex);
         }
@@ -163,6 +198,7 @@ export class RobustTTSEngine {
         window.speechSynthesis.cancel();
         this.speakCurrentParagraph();
       } else {
+        this.emitState();
         if (this.onParagraphChangeCallback) {
           this.onParagraphChangeCallback(this.currentIndex);
         }
@@ -177,6 +213,7 @@ export class RobustTTSEngine {
         window.speechSynthesis.cancel();
         this.speakCurrentParagraph();
       } else {
+        this.emitState();
         if (this.onParagraphChangeCallback) {
           this.onParagraphChangeCallback(this.currentIndex);
         }
@@ -186,6 +223,7 @@ export class RobustTTSEngine {
 
   private speakCurrentParagraph() {
     if (!this.isPlaying) return;
+    if (this.paragraphs.length === 0) return;
     if (this.currentIndex >= this.paragraphs.length) {
       this.stop();
       if (this.onEndCallback) this.onEndCallback();
@@ -193,7 +231,7 @@ export class RobustTTSEngine {
     }
 
     const text = this.paragraphs[this.currentIndex];
-    if (!text) {
+    if (!text || text.trim().length === 0) {
       this.nextParagraph();
       return;
     }
@@ -201,19 +239,31 @@ export class RobustTTSEngine {
     if (this.onParagraphChangeCallback) {
       this.onParagraphChangeCallback(this.currentIndex);
     }
+    this.emitState();
+
+    window.speechSynthesis.cancel();
+
+    // Fresh voice list check if not loaded initially
+    if (this.availableSystemVoices.length === 0 && 'speechSynthesis' in window) {
+      this.availableSystemVoices = window.speechSynthesis.getVoices();
+    }
 
     const utterance = new SpeechSynthesisUtterance(text);
     this.applyVoiceSettings(utterance);
 
     utterance.onend = () => {
       if (this.isPlaying) {
-        this.currentIndex++;
-        this.speakCurrentParagraph();
+        if (this.currentIndex < this.paragraphs.length - 1) {
+          this.currentIndex++;
+          this.speakCurrentParagraph();
+        } else {
+          this.stop();
+          if (this.onEndCallback) this.onEndCallback();
+        }
       }
     };
 
     utterance.onerror = (e) => {
-      // Ignore normal interruptions (e.g. user tapping next or pause)
       if (e.error === 'interrupted' || e.error === 'canceled') return;
       console.warn('TTS utterance error:', e.error);
       if (this.isPlaying) {
@@ -226,6 +276,11 @@ export class RobustTTSEngine {
   }
 
   private applyVoiceSettings(utterance: SpeechSynthesisUtterance) {
+    const langObj =
+      SUPPORTED_LANGUAGES.find((l) => l.code === this.currentLanguage) ||
+      SUPPORTED_LANGUAGES[0];
+    utterance.lang = langObj.speechCode || 'en-US';
+
     const voices = getVoicesForLanguage(this.currentLanguage);
     const selectedVoiceOption =
       voices.find((v) => v.id === this.selectedVoiceId) || voices[0];
@@ -235,31 +290,32 @@ export class RobustTTSEngine {
 
     // Find the best matching device voice
     if (this.availableSystemVoices.length > 0) {
-      // Look for voice matching language code (e.g. 'hi', 'es', 'en')
       const langPrefix = this.currentLanguage.split('-')[0].toLowerCase();
       const matches = this.availableSystemVoices.filter((v) =>
-        v.lang.toLowerCase().startsWith(langPrefix)
+        v.lang.toLowerCase().replace('_', '-').startsWith(langPrefix)
       );
 
       if (matches.length > 0) {
-        // If female requested, look for female named voice if available
         if (selectedVoiceOption?.gender === 'female') {
           const femaleMatch = matches.find(
             (v) =>
               v.name.toLowerCase().includes('female') ||
               v.name.toLowerCase().includes('woman') ||
               v.name.toLowerCase().includes('zira') ||
-              v.name.toLowerCase().includes('samantha')
+              v.name.toLowerCase().includes('samantha') ||
+              v.name.toLowerCase().includes('kavya') ||
+              v.name.toLowerCase().includes('lekha')
           );
           utterance.voice = femaleMatch || matches[0];
         } else {
-          // Male voice
           const maleMatch = matches.find(
             (v) =>
               v.name.toLowerCase().includes('male') ||
               v.name.toLowerCase().includes('guy') ||
               v.name.toLowerCase().includes('david') ||
-              v.name.toLowerCase().includes('george')
+              v.name.toLowerCase().includes('george') ||
+              v.name.toLowerCase().includes('rishi') ||
+              v.name.toLowerCase().includes('ajay')
           );
           utterance.voice = maleMatch || matches[0];
         }
@@ -272,6 +328,11 @@ export class RobustTTSEngine {
     window.speechSynthesis.cancel();
 
     const utterance = new SpeechSynthesisUtterance(testText);
+    const langObj =
+      SUPPORTED_LANGUAGES.find((l) => l.code === langCode) ||
+      SUPPORTED_LANGUAGES[0];
+    utterance.lang = langObj.speechCode || 'en-US';
+
     const voices = getVoicesForLanguage(langCode);
     const voiceOption = voices.find((v) => v.id === voiceId) || voices[0];
 
@@ -281,17 +342,21 @@ export class RobustTTSEngine {
     const langPrefix = langCode.split('-')[0].toLowerCase();
     const systemMatches = window.speechSynthesis
       .getVoices()
-      .filter((v) => v.lang.toLowerCase().startsWith(langPrefix));
+      .filter((v) => v.lang.toLowerCase().replace('_', '-').startsWith(langPrefix));
 
     if (systemMatches.length > 0) {
       if (voiceOption?.gender === 'female') {
-        const femaleMatch = systemMatches.find((v) =>
-          v.name.toLowerCase().includes('female')
+        const femaleMatch = systemMatches.find(
+          (v) =>
+            v.name.toLowerCase().includes('female') ||
+            v.name.toLowerCase().includes('woman')
         );
         utterance.voice = femaleMatch || systemMatches[0];
       } else {
-        const maleMatch = systemMatches.find((v) =>
-          v.name.toLowerCase().includes('male')
+        const maleMatch = systemMatches.find(
+          (v) =>
+            v.name.toLowerCase().includes('male') ||
+            v.name.toLowerCase().includes('guy')
         );
         utterance.voice = maleMatch || systemMatches[0];
       }
@@ -302,7 +367,7 @@ export class RobustTTSEngine {
 
   private startKeepAlive() {
     this.stopKeepAlive();
-    // Android Chrome bug workaround: speech halts after 14s unless refreshed
+    // Android & Chrome bug workaround: speech halts after 14s unless refreshed
     this.keepAliveInterval = setInterval(() => {
       if (this.isPlaying && !this.isPaused) {
         window.speechSynthesis.pause();
@@ -325,6 +390,9 @@ export class RobustTTSEngine {
         isPaused: this.isPaused,
         currentParagraphIndex: this.currentIndex,
         totalParagraphs: this.paragraphs.length,
+        currentLanguage: this.currentLanguage,
+        selectedVoiceId: this.selectedVoiceId,
+        rate: this.rate,
       });
     }
   }

@@ -96,7 +96,7 @@ export const WtrReaderBottomBar: React.FC<WtrReaderBottomBarProps> = ({
       {/* 1. Floating WTR-Style TTS Widget Pill (Exactly as shown in Screenshot 1) */}
       <div className="fixed bottom-28 sm:bottom-32 right-3 z-40 select-none animate-fade-in">
         <div className="bg-[#181b22]/95 text-white border border-slate-700/80 rounded-2xl shadow-2xl p-2 backdrop-blur-md flex flex-col items-center gap-1.5 min-w-[210px]">
-          {/* Top Status Badges */}
+          {/* Top Status Badges & Live Paragraph Counter */}
           <div className="flex items-center justify-between w-full px-2 text-xs">
             <div className="flex items-center gap-1.5">
               <span
@@ -113,9 +113,17 @@ export const WtrReaderBottomBar: React.FC<WtrReaderBottomBarProps> = ({
               </span>
             </div>
 
-            <span className="px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider bg-purple-600/90 text-purple-100 shadow-xs">
-              Browser
-            </span>
+            <div className="flex items-center gap-1.5">
+              <span className="px-1.5 py-0.5 rounded text-[10px] font-mono bg-slate-800 text-slate-300 border border-slate-700/60" title="Current Paragraph">
+                {ttsState.totalParagraphs > 0
+                  ? `¶ ${ttsState.currentParagraphIndex + 1}/${ttsState.totalParagraphs}`
+                  : `Ch. ${currentChapter.chapterNumber}`}
+              </span>
+
+              <span className="px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider bg-purple-600/90 text-purple-100 shadow-xs">
+                Browser
+              </span>
+            </div>
           </div>
 
           {/* Action Row */}
@@ -170,6 +178,22 @@ export const WtrReaderBottomBar: React.FC<WtrReaderBottomBarProps> = ({
                 aria-label="Next paragraph"
               >
                 <ChevronRight className="w-4 h-4" />
+              </button>
+
+              {/* Quick Speed Switcher */}
+              <button
+                onClick={() => {
+                  const rates = [0.75, 1.0, 1.25, 1.5, 2.0];
+                  const currentRate = ttsState.rate || 1.0;
+                  const nextIndex = (rates.indexOf(currentRate) + 1) % rates.length;
+                  const newRate = rates[nextIndex];
+                  ttsEngine.setRate(newRate);
+                  onUpdateSettings({ speechRate: newRate });
+                }}
+                className="px-1.5 py-1 rounded text-[10px] font-mono font-bold bg-slate-800 hover:bg-slate-700 text-blue-400 border border-slate-700/60 transition-colors"
+                title="Click to cycle speed (0.75x, 1x, 1.25x, 1.5x, 2x)"
+              >
+                {ttsState.rate}x
               </button>
 
               {/* Open Speech Settings */}
@@ -416,28 +440,37 @@ export const WtrReaderBottomBar: React.FC<WtrReaderBottomBarProps> = ({
 
                 {/* Speed & Test Voice */}
                 <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-[var(--text-secondary)] uppercase">
-                    Speed
-                  </label>
+                  <div className="flex items-center justify-between">
+                    <label className="text-xs font-semibold text-[var(--text-secondary)] uppercase">
+                      Speech Speed
+                    </label>
+                    <span className="text-xs font-mono font-bold text-blue-600 dark:text-blue-400">
+                      {ttsState.rate}x
+                    </span>
+                  </div>
                   <div className="flex items-center gap-2">
-                    <select
-                      value={ttsState.rate}
-                      onChange={(e) => {
-                        const r = parseFloat(e.target.value);
-                        ttsEngine.setRate(r);
-                      }}
-                      className="flex-1 p-2 rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-surface)] text-xs text-[var(--text-primary)] focus:outline-none"
-                    >
-                      <option value="0.75">0.75x (Slower)</option>
-                      <option value="1">1x (Normal)</option>
-                      <option value="1.25">1.25x (Fast)</option>
-                      <option value="1.5">1.5x (Faster)</option>
-                      <option value="2">2x (Speed Reader)</option>
-                    </select>
+                    <div className="flex-1 grid grid-cols-5 gap-1.5">
+                      {[0.75, 1.0, 1.25, 1.5, 2.0].map((rateVal) => (
+                        <button
+                          key={rateVal}
+                          onClick={() => {
+                            ttsEngine.setRate(rateVal);
+                            onUpdateSettings({ speechRate: rateVal });
+                          }}
+                          className={`py-1.5 text-xs rounded-lg font-mono font-bold border transition-all ${
+                            ttsState.rate === rateVal
+                              ? 'bg-blue-600 text-white border-blue-600 shadow-xs'
+                              : 'border-[var(--border-subtle)] text-[var(--text-secondary)] hover:bg-black/5 dark:hover:bg-white/5'
+                          }`}
+                        >
+                          {rateVal}x
+                        </button>
+                      ))}
+                    </div>
 
                     <button
                       onClick={handleTestVoice}
-                      className="px-4 py-2 rounded-lg border border-blue-600 text-blue-600 dark:text-blue-400 hover:bg-blue-600/10 text-xs font-semibold active:scale-95 transition-all"
+                      className="px-3.5 py-1.5 rounded-lg border border-blue-600 text-blue-600 dark:text-blue-400 hover:bg-blue-600/10 text-xs font-semibold active:scale-95 transition-all shrink-0"
                     >
                       {testVoiceSuccess ? '✓ Speaking...' : 'Test Voice'}
                     </button>

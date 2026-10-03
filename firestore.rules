@@ -54,6 +54,11 @@ service cloud.firestore {
       allow update, delete: if isAuthenticated();
     }
 
+    // Health check endpoint for connection validation
+    match /test/connection {
+      allow read: if true;
+    }
+
     // Default Deny All other paths to prevent unauthorized collection creation
     match /{document=**} {
       allow read, write: if false;

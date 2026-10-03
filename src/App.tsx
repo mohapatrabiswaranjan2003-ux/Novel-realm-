@@ -212,6 +212,7 @@ export default function App() {
       completedChapters,
     };
 
+    setActiveChapterId(chapterId);
     saveProgress(updatedProgress);
     if (currentUser?.id) {
       saveUserCloudBookmark(currentUser.id, novelId, chapterId);

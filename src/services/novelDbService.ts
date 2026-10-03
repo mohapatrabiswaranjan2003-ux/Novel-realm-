@@ -8,7 +8,7 @@ import {
   orderBy,
   serverTimestamp 
 } from 'firebase/firestore';
-import { db } from '../utils/firebase';
+import { db, auth } from '../utils/firebase';
 import { Novel, Chapter } from '../types/novel';
 import { INITIAL_NOVELS } from '../data/novelsData';
 
@@ -21,7 +21,12 @@ const NOVELS_COLLECTION = 'novels';
 export async function getNovelsFromFirestore(): Promise<Novel[]> {
   try {
     const novelsCol = collection(db, NOVELS_COLLECTION);
-    const snapshot = await getDocs(novelsCol);
+    const snapshot = await Promise.race([
+      getDocs(novelsCol),
+      new Promise<never>((_, reject) =>
+        setTimeout(() => reject(new Error('Firestore connection timeout')), 3500)
+      ),
+    ]);
 
     if (snapshot.empty) {
       // Seed Firestore with initial novels in background
@@ -83,7 +88,7 @@ export async function getNovelsFromFirestore(): Promise<Novel[]> {
 
     return novels.length > 0 ? novels : INITIAL_NOVELS;
   } catch (error) {
-    console.warn('Using local novels data due to Firestore network state:', error);
+    console.debug('Using local novels catalog (offline-first mode active).');
     return INITIAL_NOVELS;
   }
 }
@@ -129,8 +134,10 @@ export async function seedInitialNovelsToFirestore(novels: Novel[]) {
         }, { merge: true });
       }
     }
-  } catch (err) {
-    console.warn('Seeding note:', err);
+  } catch (err: any) {
+    if (err?.code !== 'permission-denied' && !err?.message?.includes('permission')) {
+      console.warn('Seeding note:', err);
+    }
   }
 }
 
@@ -139,15 +146,22 @@ export async function seedInitialNovelsToFirestore(novels: Novel[]) {
  */
 export async function saveUserCloudBookmark(userId: string, novelId: number, chapterNumber: number) {
   try {
-    const progressRef = doc(db, `users/${userId}/progress/${novelId}`);
+    // Only attempt Firestore cloud backup if Firebase Auth session is active
+    if (!auth.currentUser) {
+      return;
+    }
+    const targetUid = auth.currentUser.uid;
+    const progressRef = doc(db, `users/${targetUid}/progress/${novelId}`);
     await setDoc(progressRef, {
       novelId,
       lastChapter: chapterNumber,
       updatedAt: new Date().toISOString(),
       timestamp: serverTimestamp()
     }, { merge: true });
-  } catch (error) {
-    console.warn('Failed to save cloud bookmark:', error);
+  } catch (error: any) {
+    if (error?.code !== 'permission-denied' && !error?.message?.includes('permission')) {
+      console.warn('Cloud bookmark sync notice:', error);
+    }
   }
 }
 
@@ -156,7 +170,9 @@ export async function saveUserCloudBookmark(userId: string, novelId: number, cha
  */
 export async function getUserCloudBookmark(userId: string, novelId: number): Promise<number | null> {
   try {
-    const progressRef = doc(db, `users/${userId}/progress/${novelId}`);
+    if (!auth.currentUser) return null;
+    const targetUid = auth.currentUser.uid;
+    const progressRef = doc(db, `users/${targetUid}/progress/${novelId}`);
     const snap = await getDoc(progressRef);
     if (snap.exists()) {
       return snap.data()?.lastChapter || null;

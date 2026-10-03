@@ -168,7 +168,10 @@ export const NovelDetailModal: React.FC<NovelDetailModalProps> = ({
               <div className="flex items-center gap-2.5 pt-1">
                 <button
                   onClick={() => {
-                    const targetChapterId = progress ? progress.chapterId : novel.chapters[0]?.id;
+                    const validProgressId = progress?.chapterId && novel.chapters.some((c) => c.id === progress.chapterId)
+                      ? progress.chapterId
+                      : undefined;
+                    const targetChapterId = validProgressId || novel.chapters[0]?.id || 1;
                     onStartReading(novel.id, targetChapterId);
                     onClose();
                   }}

@@ -124,17 +124,21 @@ export const RealmAssistantBot: React.FC<RealmAssistantBotProps> = ({
     dragInfo.current.isDragging = false;
   };
 
-  // 1. Hide completely when reader is active!
-  if (currentView === 'reader') {
-    return null;
-  }
-
   // Auto-scroll to bottom of chat
   useEffect(() => {
     if (isOpen && !isMinimized) {
-      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+      try {
+        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+      } catch (err) {
+        console.warn('Scroll into view error in RealmAssistantBot:', err);
+      }
     }
   }, [messages, isOpen, isMinimized]);
+
+  // Hide completely when reader is active (at the end of hook declarations)
+  if (currentView === 'reader') {
+    return null;
+  }
 
   const handleCopyUpi = () => {
     navigator.clipboard.writeText('8114947965@ptsbi');
